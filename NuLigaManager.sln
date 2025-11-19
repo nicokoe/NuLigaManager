@@ -1,8 +1,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.5.2.0
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11205.157 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScrapeNuLigaChess", "ScrapeNuLigaChess.csproj", "{4B5B8E5A-F96E-86EF-30AA-C394C3875CE8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuLigaManager", "NuLigaManager.csproj", "{4B5B8E5A-F96E-86EF-30AA-C394C3875CE8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

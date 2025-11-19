@@ -1,7 +1,7 @@
-﻿using ScrapeNuLigaChess.Data;
+﻿using NuLigaManager.Data;
 using System.Text;
 
-namespace NuLigaScraper
+namespace NuLigaManager
 {
     public class HtmlTableWriter
     {
@@ -53,7 +53,8 @@ namespace NuLigaScraper
         public static string GenerateTeamHtmlTableRow(Team team, string style)
         {
             var averageDwz = team.TeamPlayers?.Where(player => player.Games > 0).Average(x => x.DWZ) ?? 0;
-            return $"<tr{style}><td>{team.Rank}</td><td>{team.Name}</td><td>{Math.Round(averageDwz)}</td><td>{team.Games}</td><td>{team.Points}</td><td>{team.BoardPointsSum}</td><td>0</td></tr>";
+            var teamBw = team.ComputeBerlinTieBreakSumOverAllGameDays();
+            return $"<tr{style}><td>{team.Rank}</td><td>{team.Name}</td><td>{Math.Round(averageDwz)}</td><td>{team.Games}</td><td>{team.Points}</td><td>{team.BoardPointsSum}</td><td>{teamBw}</td></tr>";
         }
 
         public static string EndTable()

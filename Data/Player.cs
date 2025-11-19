@@ -1,4 +1,4 @@
-namespace ScrapeNuLigaChess.Data
+namespace NuLigaManager.Data
 {
     public class Player
     {
