@@ -1,11 +1,47 @@
 ﻿using HtmlAgilityPack;
-using NuLigaManager.Data;
+using NuLigaCore.Data;
 
-namespace NuLigaManager
+namespace NuLigaCore
 {
     public static class NuLigaParser
     {
         private static readonly string urlRoot = "https://bsv-schach.liga.nu/";
+
+        public static List<League> ParseLeagues(HtmlWeb web)
+        {
+            var badenUrl = "https://bsv-schach.liga.nu/cgi-bin/WebObjects/nuLigaSCHACHDE.woa/wa/leaguePage?championship=Baden+25%2F26";
+            var karlsruheUrl = "https://bsv-schach.liga.nu/cgi-bin/WebObjects/nuLigaSCHACHDE.woa/wa/leaguePage?championship=Karlsruhe+25%2F26";
+
+            var leagues = ParseLeaguesFromUrl(web, badenUrl);
+            leagues.AddRange(ParseLeaguesFromUrl(web, karlsruheUrl));
+
+            return leagues;
+        }
+
+        private static List<League> ParseLeaguesFromUrl(HtmlWeb web, string url)
+        {
+            var doc = web.Load(url);
+            var crossTableList = doc.DocumentNode.SelectNodes("//table[@class='matrix']");
+            if (crossTableList == null || crossTableList.Count < 1)
+            {
+                return [];
+            }
+
+            var leagueList = crossTableList[0];
+            var leagues = new List<League>();
+            var rows = leagueList.SelectNodes(".//a[starts-with(@href, '/cgi')]");
+            for (var row = 0; row < rows.Count; row++)
+            {
+                var league = new League
+                {
+                    Name = rows[row].InnerText.TrimStart('\n', '\t', ' ').TrimEnd('\n', '\t', ' '),
+                    Url = urlRoot + rows[row].Attributes["href"].Value.TrimStart('/').Replace("amp;", ""),
+                };
+                leagues.Add(league);
+            }
+
+            return leagues;
+        }
 
         public static List<Team> ParseTeams(HtmlWeb web, HtmlDocument doc)
         {

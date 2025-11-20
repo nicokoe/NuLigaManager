@@ -1,13 +1,13 @@
 ﻿using HtmlAgilityPack;
+using NuLigaCore;
+using System.Text.Json;
 
-namespace NuLigaManager
+namespace NuLigaRunner
 {
     class Program
     {
         static async Task<int> Main(string[] args)
         {
-            var badenUrl = "https://bsv-schach.liga.nu/cgi-bin/WebObjects/nuLigaSCHACHDE.woa/wa/leaguePage?championship=Baden+25%2F26";
-            var karlsruheUrl = "https://bsv-schach.liga.nu/cgi-bin/WebObjects/nuLigaSCHACHDE.woa/wa/leaguePage?championship=Karlsruhe+25%2F26";
             string urlLandesLiga2 = "https://bsv-schach.liga.nu/cgi-bin/WebObjects/nuLigaSCHACHDE.woa/wa/groupPage?championship=Baden+25%2F26&group=4610";
             string urlKreisklasseA = "https://bsv-schach.liga.nu/cgi-bin/WebObjects/nuLigaSCHACHDE.woa/wa/groupPage?championship=Karlsruhe+25%2F26&group=4646";
             string urlBWL = "https://bsv-schach.liga.nu/cgi-bin/WebObjects/nuLigaSCHACHDE.woa/wa/groupPage?championship=W%C3%9C+25%2F26&group=4175";
@@ -15,7 +15,6 @@ namespace NuLigaManager
 
             var web = new HtmlWeb();
             var htmlDoc = web.Load(urlLandesLiga2);
-
             var teams = NuLigaParser.ParseTeams(web, htmlDoc);
 
             foreach (var team in teams)

@@ -1,7 +1,7 @@
-﻿using NuLigaManager.Data;
+﻿using NuLigaCore.Data;
 using System.Text;
 
-namespace NuLigaManager
+namespace NuLigaCore
 {
     public class HtmlTableWriter
     {

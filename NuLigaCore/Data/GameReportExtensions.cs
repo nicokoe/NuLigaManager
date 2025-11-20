@@ -1,4 +1,4 @@
-namespace NuLigaManager.Data
+namespace NuLigaCore.Data
 {
     public static class GameReportExtensions
     {

@@ -8,9 +8,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
-		<PackageReference Include="HtmlAgilityPack.CssSelectors" Version="1.0.2" />
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<ProjectReference Include="..\NuLigaCore\NuLigaCore.csproj" />
 	</ItemGroup>
 
 </Project>
