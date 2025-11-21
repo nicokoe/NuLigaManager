@@ -47,7 +47,8 @@
                     <DataGridTextColumn Header="DWZ" Binding="{Binding AverageDwz}" Width="80"/>
                     <DataGridTextColumn Header="Spiele" Binding="{Binding Games}" Width="80"/>
                     <DataGridTextColumn Header="Punkte" Binding="{Binding Points}" Width="80"/>
-                    <DataGridTextColumn Header="BP" Binding="{Binding BoardPointsSum}" Width="100"/>
+                    <DataGridTextColumn Header="BP" Binding="{Binding BoardPointsSum}" Width="80"/>
+                    <DataGridTextColumn Header="BW" Binding="{Binding BerlinTieBreak}" Width="80"/>
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>

@@ -11,7 +11,7 @@ namespace NuLigaGui.ViewModels
     {
         public ObservableCollection<League> Leagues { get; }
 
-        public ObservableCollection<Team> Teams { get; } = new();
+        public ObservableCollection<TeamViewModel> Teams { get; } = new();
 
         private readonly Dictionary<string, List<Team>> _teamsCache = new();
         private readonly object _cacheLock = new();
@@ -49,6 +49,26 @@ namespace NuLigaGui.ViewModels
         public LeaguesViewModel(IEnumerable<League> leagues)
         {
             Leagues = new ObservableCollection<League>(leagues.Where(l => l is not null).ToList());
+
+            NuLigaParser.GameDayReportLoaded += NuLigaParser_GameDayReportLoaded;
+        }
+
+        private void NuLigaParser_GameDayReportLoaded(GameDay gameDay)
+        {
+            if (Teams.Count == 0)
+            {
+                return; 
+            }
+
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                Teams.FirstOrDefault(t => t.ContainsGameDay(gameDay))?.Refresh();
+            });
+        }
+
+        private IEnumerable<TeamViewModel> ToViewModels(IEnumerable<Team> teams)
+        {
+            return teams.Select(t => new TeamViewModel(t));
         }
 
         private async Task LoadTeamsAsync(League? league)
@@ -71,9 +91,9 @@ namespace NuLigaGui.ViewModels
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     Teams.Clear();
-                    foreach (var t in cached)
+                    foreach (var vm in ToViewModels(cached))
                     {
-                        Teams.Add(t);
+                        Teams.Add(vm);
                     }
                 });
                 return;
@@ -90,7 +110,6 @@ namespace NuLigaGui.ViewModels
                     return NuLigaParser.ParseTeams(web, doc) ?? new List<Team>();
                 });
 
-                // Cache the parsed teams
                 lock (_cacheLock)
                 {
                     _teamsCache[key] = teams;
@@ -99,9 +118,9 @@ namespace NuLigaGui.ViewModels
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     Teams.Clear();
-                    foreach (var t in teams)
+                    foreach (var vm in ToViewModels(teams))
                     {
-                        Teams.Add(t);
+                        Teams.Add(vm);
                     }
                 });
             }

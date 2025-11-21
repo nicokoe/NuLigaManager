@@ -7,6 +7,8 @@ namespace NuLigaCore
     {
         private static readonly string urlRoot = "https://bsv-schach.liga.nu/";
 
+        public static event Action<GameDay>? GameDayReportLoaded;
+
         public static List<League> ParseLeagues(HtmlWeb web)
         {
             var badenUrl = "https://bsv-schach.liga.nu/cgi-bin/WebObjects/nuLigaSCHACHDE.woa/wa/leaguePage?championship=Baden+25%2F26";
@@ -68,7 +70,7 @@ namespace NuLigaCore
                     Rank = int.Parse(cells[1].InnerText),
                     Name = cells[2].InnerText,
                     TeamPlayers = ParsePlayers(teamDetails),
-                    GameDays = ParseGameDays(web, teamDetails),
+                    GameDays = ParseGameDays( teamDetails),
                     Games = int.Parse(cells[numberOfTeams + 3].InnerText),
                     Points = int.Parse(cells[numberOfTeams + 4].InnerText),
                     BoardPointsSum = double.Parse(cells[numberOfTeams + 5].InnerText),
@@ -91,7 +93,7 @@ namespace NuLigaCore
             return teams;
         }
 
-        public static List<GameDay>? ParseGameDays(HtmlWeb web, HtmlDocument doc)
+        public static List<GameDay>? ParseGameDays(HtmlDocument doc)
         {
             var resultSetList = doc.DocumentNode.SelectNodes("//table[@class='result-set']");
             if (resultSetList == null || resultSetList.Count < 3)
@@ -118,17 +120,33 @@ namespace NuLigaCore
                     Round = int.Parse(round),
                     HomeTeam = homeTeam,
                     GuestTeam = guestTeam,
-                    BoardPoints = boardPoints
+                    BoardPoints = boardPoints,
+                    ReportUrl = cells[8].QuerySelector("a")?.Attributes["href"].Value.TrimStart('/').Replace("amp;", "")
                 };
 
-                var gameReportLink = cells[8].QuerySelector("a")?.Attributes["href"].Value.TrimStart('/').Replace("amp;", "");
-                var gameReport = web.Load(urlRoot + gameReportLink);
-                gameDay.Report = ParseGameReport(gameReport);
-
                 gameDays.Add(gameDay);
+
+                _ = LoadGameReportAsync(gameDay);
             }
 
             return gameDays;
+        }
+
+        private static async Task LoadGameReportAsync(GameDay? gameDay)
+        {
+            if (gameDay == null || string.IsNullOrWhiteSpace(gameDay.ReportUrl))
+            {
+                return;
+            }
+
+            await Task.Run(() =>
+            {
+                var web = new HtmlWeb();
+                var doc = web.Load(urlRoot + gameDay.ReportUrl);
+                gameDay.Report = ParseGameReport(doc);
+
+                GameDayReportLoaded?.Invoke(gameDay);
+            });
         }
 
         public static GameReport? ParseGameReport(HtmlDocument doc)

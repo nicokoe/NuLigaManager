@@ -7,6 +7,7 @@ namespace NuLigaCore.Data
         public string? HomeTeam { get; set; }
         public string? GuestTeam { get; set; }
         public string? BoardPoints { get; set; }
+        public string? ReportUrl { get; set; }
         public GameReport? Report { get; set; }
 
         public override string ToString()

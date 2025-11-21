@@ -12,6 +12,7 @@ namespace NuLigaCore.Data
         public List<Player>? TeamPlayers { get; set; }
         public double AverageDwz => (TeamPlayers != null && TeamPlayers.Count > 0) ? Math.Round(TeamPlayers.Average(x => x.DWZ)) : 0;
         public List<GameDay>? GameDays { get; set; }
+        public double BerlinTieBreak => ComputeBerlinTieBreakSumOverAllGameDays();
 
         public double ComputeBerlinTieBreakSumOverAllGameDays()
         {
