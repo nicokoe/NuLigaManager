@@ -8,6 +8,7 @@ namespace NuLigaCore.Data
         public int Games { get; set; }
         public int Points { get; set; }
         public double BoardPointsSum { get; set; }
+        public string? TeamUrl { get; set; }
 
         public List<Player>? TeamPlayers { get; set; }
         public double AverageDwz => (TeamPlayers != null && TeamPlayers.Count > 0) ? Math.Round(TeamPlayers.Average(x => x.DWZ)) : 0;

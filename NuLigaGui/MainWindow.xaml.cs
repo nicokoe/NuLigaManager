@@ -1,5 +1,4 @@
-﻿using HtmlAgilityPack;
-using NuLigaCore;
+﻿using NuLigaCore;
 using System.Windows;
 
 namespace NuLigaGui
@@ -13,8 +12,7 @@ namespace NuLigaGui
         {
             InitializeComponent();
 
-            var web = new HtmlWeb();
-            var leagues = NuLigaParser.ParseLeagues(web);
+            var leagues = NuLigaParser.ParseLeagues();
 
             DataContext = new ViewModels.LeaguesViewModel(leagues);
         }

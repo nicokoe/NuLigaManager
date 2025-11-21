@@ -105,9 +105,7 @@ namespace NuLigaGui.ViewModels
 
                 var teams = await Task.Run(() =>
                 {
-                    var web = new HtmlWeb();
-                    var doc = web.Load(league.Url!);
-                    return NuLigaParser.ParseTeams(web, doc) ?? new List<Team>();
+                    return NuLigaParser.ParseTeams(league.Url) ?? new List<Team>();
                 });
 
                 lock (_cacheLock)

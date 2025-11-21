@@ -13,9 +13,7 @@ namespace NuLigaRunner
             string urlBWL = "https://bsv-schach.liga.nu/cgi-bin/WebObjects/nuLigaSCHACHDE.woa/wa/groupPage?championship=W%C3%9C+25%2F26&group=4175";
             string urlKreisklasseC2 = "https://bsv-schach.liga.nu/cgi-bin/WebObjects/nuLigaSCHACHDE.woa/wa/groupPage?championship=Karlsruhe+25%2F26&group=4605";
 
-            var web = new HtmlWeb();
-            var htmlDoc = web.Load(urlLandesLiga2);
-            var teams = NuLigaParser.ParseTeams(web, htmlDoc);
+            var teams = NuLigaParser.ParseTeams(urlLandesLiga2);
 
             foreach (var team in teams)
             {

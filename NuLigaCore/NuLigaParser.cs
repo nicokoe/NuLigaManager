@@ -9,7 +9,9 @@ namespace NuLigaCore
 
         public static event Action<GameDay>? GameDayReportLoaded;
 
-        public static List<League> ParseLeagues(HtmlWeb web)
+        private static readonly HtmlWeb web = new();
+
+        public static List<League> ParseLeagues()
         {
             var badenUrl = "https://bsv-schach.liga.nu/cgi-bin/WebObjects/nuLigaSCHACHDE.woa/wa/leaguePage?championship=Baden+25%2F26";
             var karlsruheUrl = "https://bsv-schach.liga.nu/cgi-bin/WebObjects/nuLigaSCHACHDE.woa/wa/leaguePage?championship=Karlsruhe+25%2F26";
@@ -45,8 +47,9 @@ namespace NuLigaCore
             return leagues;
         }
 
-        public static List<Team> ParseTeams(HtmlWeb web, HtmlDocument doc)
+        public static List<Team> ParseTeams(string url)
         {
+            var doc = web.Load(url);
             var crossTableList = doc.DocumentNode.SelectNodes("//table[@class='cross-table']");
             if (crossTableList == null || crossTableList.Count < 1)
             {
@@ -62,20 +65,25 @@ namespace NuLigaCore
             for (var row = 1; row < rows.Count; row++)
             {
                 var cells = rows[row].SelectNodes("th|td");
-                var teamLink = cells[2].QuerySelector("a").Attributes["href"].Value;
-                var teamDetails = web.Load(urlRoot + teamLink);
+                var teamUrl = cells[2].QuerySelector("a").Attributes["href"].Value;
 
                 var newTeam = new Team
                 {
                     Rank = int.Parse(cells[1].InnerText),
                     Name = cells[2].InnerText,
-                    TeamPlayers = ParsePlayers(teamDetails),
-                    GameDays = ParseGameDays( teamDetails),
+                    TeamUrl = string.IsNullOrEmpty(teamUrl) ? null : urlRoot + teamUrl,
                     Games = int.Parse(cells[numberOfTeams + 3].InnerText),
                     Points = int.Parse(cells[numberOfTeams + 4].InnerText),
                     BoardPointsSum = double.Parse(cells[numberOfTeams + 5].InnerText),
                     BoardPointsPerRank = new double[numberOfTeams - 1]
                 };
+
+                if (newTeam.TeamUrl != null)
+                {
+                    var teamDoc = web.Load(newTeam.TeamUrl);
+                    newTeam.TeamPlayers = ParsePlayers(teamDoc);
+                    newTeam.GameDays = ParseGameDays(teamDoc);
+                }
 
                 var rankIndex = 0;
                 for (var i = 0; i < numberOfTeams; i++)
@@ -96,8 +104,10 @@ namespace NuLigaCore
         public static List<GameDay>? ParseGameDays(HtmlDocument doc)
         {
             var resultSetList = doc.DocumentNode.SelectNodes("//table[@class='result-set']");
-            if (resultSetList == null || resultSetList.Count < 3)
+            if (resultSetList == null || resultSetList.Count < 2)
             {
+                var errorReason = resultSetList == null ? "resultSetList is null" : "resultSetList's count < 2";
+                System.Diagnostics.Debug.WriteLine($"Error in loaded data for game days: {errorReason}");
                 return null;
             }
 
@@ -113,6 +123,7 @@ namespace NuLigaCore
                 var homeTeam = cells[6].InnerText.TrimStart('\n', '\t', ' ').TrimEnd('\n', '\t', ' ');
                 var guestTeam = cells[7].InnerText.TrimStart('\n', '\t', ' ').TrimEnd('\n', '\t', ' ').Replace("&nbsp;", "");
                 var boardPoints = cells[8].InnerText.TrimStart('\n', '\t', ' ').TrimEnd('\n', '\t', ' ');
+                var reportUrl = cells[8].QuerySelector("a")?.Attributes["href"].Value.TrimStart('/').Replace("amp;", "");
 
                 var gameDay = new GameDay
                 {
@@ -121,7 +132,7 @@ namespace NuLigaCore
                     HomeTeam = homeTeam,
                     GuestTeam = guestTeam,
                     BoardPoints = boardPoints,
-                    ReportUrl = cells[8].QuerySelector("a")?.Attributes["href"].Value.TrimStart('/').Replace("amp;", "")
+                    ReportUrl = string.IsNullOrEmpty(reportUrl) ? null : urlRoot + reportUrl
                 };
 
                 gameDays.Add(gameDay);
@@ -142,7 +153,7 @@ namespace NuLigaCore
             await Task.Run(() =>
             {
                 var web = new HtmlWeb();
-                var doc = web.Load(urlRoot + gameDay.ReportUrl);
+                var doc = web.Load(gameDay.ReportUrl);
                 gameDay.Report = ParseGameReport(doc);
 
                 GameDayReportLoaded?.Invoke(gameDay);
@@ -152,8 +163,10 @@ namespace NuLigaCore
         public static GameReport? ParseGameReport(HtmlDocument doc)
         {
             var resultSetList = doc.DocumentNode.SelectNodes("//table[@class='result-set']");
-            if (resultSetList == null || resultSetList.Count < 0)
+            if (resultSetList == null || resultSetList.Count < 1)
             {
+                var errorReason = resultSetList == null ? "resultSetList is null" : "resultSetList's count < 1";
+                System.Diagnostics.Debug.WriteLine($"Error in loaded data for the game report: {errorReason}");
                 return null;
             }
 
@@ -191,6 +204,8 @@ namespace NuLigaCore
             var resultSetList = doc.DocumentNode.SelectNodes("//table[@class='result-set']");
             if (resultSetList == null || resultSetList.Count < 3)
             {
+                var errorReason = resultSetList == null ? "resultSetList is null" : "resultSetList's count < 3";
+                System.Diagnostics.Debug.WriteLine($"Error in loaded data for the players: {errorReason}");
                 return null;
             }
 
