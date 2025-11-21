@@ -52,9 +52,8 @@ namespace NuLigaCore
 
         public static string GenerateTeamHtmlTableRow(Team team, string style)
         {
-            var averageDwz = team.TeamPlayers?.Where(player => player.Games > 0).Average(x => x.DWZ) ?? 0;
             var teamBw = team.ComputeBerlinTieBreakSumOverAllGameDays();
-            return $"<tr{style}><td>{team.Rank}</td><td>{team.Name}</td><td>{Math.Round(averageDwz)}</td><td>{team.Games}</td><td>{team.Points}</td><td>{team.BoardPointsSum}</td><td>{teamBw}</td></tr>";
+            return $"<tr{style}><td>{team.Rank}</td><td>{team.Name}</td><td>{team.AverageDwz}</td><td>{team.Games}</td><td>{team.Points}</td><td>{team.BoardPointsSum}</td><td>{teamBw}</td></tr>";
         }
 
         public static string EndTable()

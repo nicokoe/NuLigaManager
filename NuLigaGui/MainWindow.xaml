@@ -5,18 +5,51 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NuLigaGui"
         mc:Ignorable="d"
-        Title="NuLiga Manager" Height="450" Width="800">
+        Title="NuLiga Manager" Height="600" Width="1000">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    </Window.Resources>
+    
     <Grid Margin="8">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
 
-        <TextBlock Text="Leagues" FontSize="18" FontWeight="Bold" Margin="0,0,0,8"/>
+        <StackPanel Grid.Column="0">
+            <TextBlock Text="Verbandsrunde 2025/26" FontSize="18" FontWeight="Bold" Margin="0,0,0,8"/>
+            <ListBox ItemsSource="{Binding Leagues}"
+                     SelectedItem="{Binding SelectedLeague, Mode=TwoWay}"
+                     DisplayMemberPath="Name"
+                     VerticalAlignment="Stretch"
+                     HorizontalAlignment="Stretch"/>
+        </StackPanel>
 
-        <ListBox Grid.Row="1"
-                 ItemsSource="{Binding Leagues}"
-                 SelectedItem="{Binding SelectedLeague, Mode=TwoWay}"
-                 DisplayMemberPath="Name" />
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                <TextBlock Text="{Binding SelectedLeague.Name}" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                <TextBlock Text="  " />
+                <TextBlock Text="(loading...)" Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}" VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <DataGrid Grid.Row="1"
+                      ItemsSource="{Binding Teams}"
+                      AutoGenerateColumns="False"
+                      IsReadOnly="True">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Rang" Binding="{Binding Rank}" Width="60"/>
+                    <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/>
+                    <DataGridTextColumn Header="DWZ" Binding="{Binding AverageDwz}" Width="80"/>
+                    <DataGridTextColumn Header="Spiele" Binding="{Binding Games}" Width="80"/>
+                    <DataGridTextColumn Header="Punkte" Binding="{Binding Points}" Width="80"/>
+                    <DataGridTextColumn Header="BP" Binding="{Binding BoardPointsSum}" Width="100"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
     </Grid>
 </Window>
