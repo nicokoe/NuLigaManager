@@ -1,3 +1,5 @@
+using CsvHelper.Configuration;
+using System.Globalization;
 using System.Text.Json.Serialization;
 
 namespace NuLigaCore.Data
@@ -51,6 +53,15 @@ namespace NuLigaCore.Data
             }
 
             return $"{Rang}. {Name} - Games: {Spiele}, Points: {Punkte}, BoardPoints: {BP}, BoardPointsPerRank: {boardPointsPerRankStr}, {playersStr}";
+        }
+    }
+
+    public sealed class TeamMap : ClassMap<Team>
+    {
+        public TeamMap()
+        {
+            AutoMap(CultureInfo.InvariantCulture);
+            Map(m => m.TeamUrl).Ignore();
         }
     }
 }

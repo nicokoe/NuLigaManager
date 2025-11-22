@@ -1,3 +1,4 @@
+using CsvHelper;
 using Microsoft.Win32;
 using NuLigaCore;
 using NuLigaCore.Data;
@@ -21,8 +22,10 @@ namespace NuLigaGui.ViewModels
 
         private readonly RelayCommand _copyCommand;
         private readonly RelayCommand<League?> _exportJsonCommand;
+        private readonly RelayCommand<League?> _exportCsvCommand;
         public ICommand CopySelectedLeagueCommand => _copyCommand;
         public ICommand ExportSelectedLeagueJsonCommand => _exportJsonCommand;
+        public ICommand ExportSelectedLeagueCsvCommand => _exportCsvCommand;
 
         private League? _selectedLeague;
         public League? SelectedLeague
@@ -62,6 +65,7 @@ namespace NuLigaGui.ViewModels
 
             _copyCommand = new RelayCommand(CopySelectedLeagueAsync, () => SelectedLeague != null);
             _exportJsonCommand = new RelayCommand<League?>(ExportSelectedLeagueJsonAsync, l => l != null);
+            _exportCsvCommand = new RelayCommand<League?>(ExportSelectedLeagueCsvAsync, l => l != null);
 
             NuLigaParser.GameDayReportLoaded += NuLigaParser_GameDayReportLoaded;
         }
@@ -200,13 +204,49 @@ namespace NuLigaGui.ViewModels
             await File.WriteAllTextAsync(path, json).ConfigureAwait(false);
         }
 
+        public async Task ExportSelectedLeagueCsvAsync(League? league)
+        {
+            if (league == null) return;
+
+            var teams = await LoadTeamsAsync(league).ConfigureAwait(false);
+
+            string? path = null;
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                var dlg = new SaveFileDialog
+                {
+                    FileName = string.IsNullOrWhiteSpace(league.Name) ? "teams" : $"{SanitizeFileName(league.Name)}.csv",
+                    Filter = "CSV files (*.csv)|*.csv|All files (*.*)|*.*",
+                    DefaultExt = "csv",
+                    AddExtension = true
+                };
+
+                if (dlg.ShowDialog() == true)
+                {
+                    path = dlg.FileName;
+                }
+            });
+
+            if (string.IsNullOrWhiteSpace(path)) return;
+
+
+            using (var writer = new StreamWriter(path))
+            {
+                using (var csv = new CsvWriter(writer, System.Globalization.CultureInfo.InvariantCulture))
+                {
+                    csv.Context.RegisterClassMap<TeamMap>();
+                    await csv.WriteRecordsAsync(teams).ConfigureAwait(false);
+                }
+            }
+        }
+
         private static string SanitizeFileName(string input)
         {
             foreach (var c in Path.GetInvalidFileNameChars())
             {
                 input = input.Replace(c, '_');
             }
-            return input;
+            return input.Replace(' ', '_');
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

@@ -32,6 +32,9 @@
                         <MenuItem Header="Exportieren als JSON-Datei"
                                   Command="{Binding Path=DataContext.ExportSelectedLeagueJsonCommand}"
                                   CommandParameter="{Binding Path=SelectedItem}" />
+                        <MenuItem Header="Exportieren als CSV-Datei"
+                                  Command="{Binding Path=DataContext.ExportSelectedLeagueCsvCommand}"
+                                  CommandParameter="{Binding Path=SelectedItem}" />
                     </ContextMenu>
                 </ListBox.ContextMenu>
             </ListBox>
