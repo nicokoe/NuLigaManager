@@ -16,6 +16,7 @@ namespace NuLigaGui.ViewModels
         public ObservableCollection<League> Leagues { get; }
 
         public ObservableCollection<TeamViewModel> Teams { get; } = new();
+        public ObservableCollection<Player> SelectedTeamPlayers { get; } = new();
 
         private readonly Dictionary<string, List<Team>> _teamsCache = new();
         private readonly object _cacheLock = new();
@@ -42,6 +43,32 @@ namespace NuLigaGui.ViewModels
                     _copyCommand.RaiseCanExecuteChanged();
                     _exportJsonCommand.RaiseCanExecuteChanged();
                 }
+            }
+        }
+
+        private TeamViewModel? _selectedTeamView;
+        public TeamViewModel? SelectedTeamView
+        {
+            get => _selectedTeamView;
+            set
+            {
+                if (_selectedTeamView != value)
+                {
+                    _selectedTeamView = value;
+                    OnPropertyChanged(nameof(SelectedTeamView));
+                    UpdateSelectedTeamPlayers();
+                }
+            }
+        }
+
+        private void UpdateSelectedTeamPlayers()
+        {
+            SelectedTeamPlayers.Clear();
+            if (SelectedTeamView == null) return;
+
+            foreach (var p in SelectedTeamView.Players)
+            {
+                SelectedTeamPlayers.Add(p);
             }
         }
 
@@ -79,7 +106,16 @@ namespace NuLigaGui.ViewModels
 
             Application.Current.Dispatcher.Invoke(() =>
             {
-                Teams.FirstOrDefault(t => t.ContainsGameDay(gameDay))?.Refresh();
+                var vm = Teams.FirstOrDefault(t => t.ContainsGameDay(gameDay));
+                if (vm != null)
+                {
+                    vm.Refresh();
+
+                    if (SelectedTeamView == vm)
+                    {
+                        UpdateSelectedTeamPlayers();
+                    }
+                }
             });
         }
 
@@ -112,6 +148,7 @@ namespace NuLigaGui.ViewModels
                     {
                         Teams.Add(vm);
                     }
+                    SelectedTeamView = null;
                 });
                 return cached;
             }
@@ -137,6 +174,7 @@ namespace NuLigaGui.ViewModels
                     {
                         Teams.Add(vm);
                     }
+                    SelectedTeamView = null;
                 });
 
                 return teams;

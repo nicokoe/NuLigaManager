@@ -20,6 +20,8 @@ namespace NuLigaGui.ViewModels
         public double AverageDwz => _team.DWZ;
         public double BerlinTieBreak => _team.BW;
 
+        public IEnumerable<Player> Players => _team.TeamPlayers ?? Enumerable.Empty<Player>();
+
         public bool ContainsGameDay(GameDay gameDay) =>
             _team.GameDays != null && _team.GameDays.Contains(gameDay);
 

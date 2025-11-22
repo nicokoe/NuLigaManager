@@ -53,9 +53,13 @@
             </StackPanel>
 
             <DataGrid Grid.Row="1"
-                      ItemsSource="{Binding Teams}"
-                      AutoGenerateColumns="False"
-                      IsReadOnly="True">
+                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                  ItemsSource="{Binding Teams}"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  SelectionMode="Single"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Rang" Binding="{Binding Rank}" Width="60"/>
                     <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/>
@@ -65,6 +69,29 @@
                     <DataGridTextColumn Header="BP" Binding="{Binding BoardPointsSum}" Width="80"/>
                     <DataGridTextColumn Header="BW" Binding="{Binding BerlinTieBreak}" Width="80"/>
                 </DataGrid.Columns>
+
+                <DataGrid.RowDetailsTemplate>
+                    <DataTemplate>
+                        <Border Margin="4" Padding="6" BorderBrush="#DDD" BorderThickness="1" CornerRadius="4" Background="#FAFAFA">
+                            <DataGrid ItemsSource="{Binding Players}"
+                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                  AutoGenerateColumns="False"
+                                  IsReadOnly="True"
+                                  HeadersVisibility="Column"
+                                  Height="160"
+                                  CanUserAddRows="False"
+                                  CanUserDeleteRows="False">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Brett" Binding="{Binding BoardNumber}" Width="60"/>
+                                    <DataGridTextColumn Header="Spieler" Binding="{Binding Name}" Width="*"/>
+                                    <DataGridTextColumn Header="DWZ" Binding="{Binding DWZ}" Width="80"/>
+                                    <DataGridTextColumn Header="Spiele" Binding="{Binding Games}" Width="80"/>
+                                    <DataGridTextColumn Header="BP" Binding="{Binding BoardPoints}" Width="80"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Border>
+                    </DataTemplate>
+                </DataGrid.RowDetailsTemplate>
             </DataGrid>
         </Grid>
     </Grid>
