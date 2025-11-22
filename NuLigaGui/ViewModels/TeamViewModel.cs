@@ -12,13 +12,13 @@ namespace NuLigaGui.ViewModels
             _team = team;
         }
 
-        public int Rank => _team.Rank;
+        public int Rank => _team.Rang;
         public string Name => _team.Name;
-        public int Games => _team.Games;
-        public int Points => _team.Points;
-        public double BoardPointsSum => _team.BoardPointsSum;
-        public double AverageDwz => _team.AverageDwz;
-        public double BerlinTieBreak => _team.BerlinTieBreak;
+        public int Games => _team.Spiele;
+        public int Points => _team.Punkte;
+        public double BoardPointsSum => _team.BP;
+        public double AverageDwz => _team.DWZ;
+        public double BerlinTieBreak => _team.BW;
 
         public bool ContainsGameDay(GameDay gameDay) =>
             _team.GameDays != null && _team.GameDays.Contains(gameDay);

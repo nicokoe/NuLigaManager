@@ -53,7 +53,7 @@ namespace NuLigaCore
         public static string GenerateTeamHtmlTableRow(Team team, string style)
         {
             var teamBw = team.ComputeBerlinTieBreakSumOverAllGameDays();
-            return $"<tr{style}><td>{team.Rank}</td><td>{team.Name}</td><td>{team.AverageDwz}</td><td>{team.Games}</td><td>{team.Points}</td><td>{team.BoardPointsSum}</td><td>{teamBw}</td></tr>";
+            return $"<tr{style}><td>{team.Rang}</td><td>{team.Name}</td><td>{team.DWZ}</td><td>{team.Spiele}</td><td>{team.Punkte}</td><td>{team.BP}</td><td>{teamBw}</td></tr>";
         }
 
         public static string EndTable()

@@ -69,12 +69,12 @@ namespace NuLigaCore
 
                 var newTeam = new Team
                 {
-                    Rank = int.Parse(cells[1].InnerText),
+                    Rang = int.Parse(cells[1].InnerText),
                     Name = cells[2].InnerText,
                     TeamUrl = string.IsNullOrEmpty(teamUrl) ? null : urlRoot + teamUrl,
-                    Games = int.Parse(cells[numberOfTeams + 3].InnerText),
-                    Points = int.Parse(cells[numberOfTeams + 4].InnerText),
-                    BoardPointsSum = double.Parse(cells[numberOfTeams + 5].InnerText),
+                    Spiele = int.Parse(cells[numberOfTeams + 3].InnerText),
+                    Punkte = int.Parse(cells[numberOfTeams + 4].InnerText),
+                    BP = double.Parse(cells[numberOfTeams + 5].InnerText),
                     BoardPointsPerRank = new double[numberOfTeams - 1]
                 };
 
