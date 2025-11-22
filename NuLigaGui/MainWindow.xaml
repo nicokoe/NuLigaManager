@@ -9,11 +9,11 @@
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     </Window.Resources>
-    
+
     <Window.InputBindings>
         <KeyBinding Key="C" Modifiers="Control" Command="{Binding CopySelectedLeagueCommand}" />
     </Window.InputBindings>
-    
+
     <Grid Margin="8">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="300"/>
@@ -26,7 +26,28 @@
                      SelectedItem="{Binding SelectedLeague, Mode=TwoWay}"
                      DisplayMemberPath="Name"
                      VerticalAlignment="Stretch"
-                     HorizontalAlignment="Stretch"/>
+                     HorizontalAlignment="Stretch">
+                <ListBox.ContextMenu>
+                    <ContextMenu DataContext="{Binding Path=PlacementTarget, RelativeSource={RelativeSource Self}}">
+                        <MenuItem Header="Export to JSON"
+                                  Command="{Binding Path=DataContext.ExportSelectedLeagueJsonCommand}"
+                                  CommandParameter="{Binding Path=SelectedItem}" />
+                    </ContextMenu>
+                </ListBox.ContextMenu>
+                <!--<ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="ContextMenu">
+                            <Setter.Value>
+                                <ContextMenu>
+                                    <MenuItem Header="Export to JSON"
+                                              Click="ExportJsonMenuItem_Click"
+                                              CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                </ContextMenu>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.ItemContainerStyle>-->
+            </ListBox>
         </StackPanel>
 
         <Grid Grid.Column="1">

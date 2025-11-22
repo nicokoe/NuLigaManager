@@ -1,17 +1,26 @@
+using System.Text.Json.Serialization;
+
 namespace NuLigaCore.Data
 {
     public class Team
     {
         public int Rank { get; set; }
         public string Name { get; set; } = string.Empty;
+
+        [JsonIgnore]
         public double[]? BoardPointsPerRank { get; set; }
         public int Games { get; set; }
         public int Points { get; set; }
         public double BoardPointsSum { get; set; }
+
+        [JsonIgnore]
         public string? TeamUrl { get; set; }
 
+        [JsonIgnore]
         public List<Player>? TeamPlayers { get; set; }
         public double AverageDwz => (TeamPlayers != null && TeamPlayers.Count > 0) ? Math.Round(TeamPlayers.Average(x => x.DWZ)) : 0;
+
+        [JsonIgnore]
         public List<GameDay>? GameDays { get; set; }
         public double BerlinTieBreak => ComputeBerlinTieBreakSumOverAllGameDays();
 

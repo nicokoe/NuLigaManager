@@ -1,8 +1,10 @@
-using HtmlAgilityPack;
+using Microsoft.Win32;
 using NuLigaCore;
 using NuLigaCore.Data;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
+using System.Text.Json;
 using System.Windows;
 using System.Windows.Input;
 
@@ -18,7 +20,9 @@ namespace NuLigaGui.ViewModels
         private readonly object _cacheLock = new();
 
         private readonly RelayCommand _copyCommand;
+        private readonly RelayCommand<League?> _exportJsonCommand;
         public ICommand CopySelectedLeagueCommand => _copyCommand;
+        public ICommand ExportSelectedLeagueJsonCommand => _exportJsonCommand;
 
         private League? _selectedLeague;
         public League? SelectedLeague
@@ -33,6 +37,7 @@ namespace NuLigaGui.ViewModels
 
                     _ = LoadTeamsAsync(_selectedLeague);
                     _copyCommand.RaiseCanExecuteChanged();
+                    _exportJsonCommand.RaiseCanExecuteChanged();
                 }
             }
         }
@@ -56,6 +61,7 @@ namespace NuLigaGui.ViewModels
             Leagues = new ObservableCollection<League>(leagues.Where(l => l is not null).ToList());
 
             _copyCommand = new RelayCommand(CopySelectedLeagueAsync, () => SelectedLeague != null);
+            _exportJsonCommand = new RelayCommand<League?>(ExportSelectedLeagueJsonAsync, l => l != null);
 
             NuLigaParser.GameDayReportLoaded += NuLigaParser_GameDayReportLoaded;
         }
@@ -163,6 +169,44 @@ namespace NuLigaGui.ViewModels
                 data.SetData(DataFormats.Text, html);
                 Clipboard.SetDataObject(data, true);
             });
+        }
+
+        public async Task ExportSelectedLeagueJsonAsync(League? league)
+        {
+            if (league == null) return;
+
+            var teams = await LoadTeamsAsync(league).ConfigureAwait(false);
+            var json = JsonSerializer.Serialize(teams, new JsonSerializerOptions { WriteIndented = true });
+
+            string? path = null;
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                var dlg = new SaveFileDialog
+                {
+                    FileName = string.IsNullOrWhiteSpace(league.Name) ? "teams" : $"{SanitizeFileName(league.Name)}.json",
+                    Filter = "JSON files (*.json)|*.json|All files (*.*)|*.*",
+                    DefaultExt = "json",
+                    AddExtension = true
+                };
+
+                if (dlg.ShowDialog() == true)
+                {
+                    path = dlg.FileName;
+                }
+            });
+
+            if (string.IsNullOrWhiteSpace(path)) return;
+
+            await File.WriteAllTextAsync(path, json).ConfigureAwait(false);
+        }
+
+        private static string SanitizeFileName(string input)
+        {
+            foreach (var c in Path.GetInvalidFileNameChars())
+            {
+                input = input.Replace(c, '_');
+            }
+            return input;
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

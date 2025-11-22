@@ -13,7 +13,6 @@ namespace NuLigaGui
             InitializeComponent();
 
             var leagues = NuLigaParser.ParseLeagues();
-
             DataContext = new ViewModels.LeaguesViewModel(leagues);
         }
     }
