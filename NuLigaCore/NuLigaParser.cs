@@ -7,7 +7,7 @@ namespace NuLigaCore
     {
         private static readonly string urlRoot = "https://bsv-schach.liga.nu/";
 
-        public static event Action<GameDay>? GameDayReportLoaded;
+        public static event Action<GameDay>? GameDayReportLoadedForGui;
 
         private static readonly HtmlWeb web = new();
 
@@ -81,8 +81,8 @@ namespace NuLigaCore
                 if (newTeam.TeamUrl != null)
                 {
                     var teamDoc = web.Load(newTeam.TeamUrl);
-                    newTeam.TeamPlayers = ParsePlayers(teamDoc);
-                    newTeam.GameDays = ParseGameDays(teamDoc);
+                    newTeam.TeamPlayers = ParsePlayers(teamDoc, numberOfTeams - 1);
+                    newTeam.GameDays = ParseGameDays(teamDoc, newTeam.GameDayReportLoaded);
                 }
 
                 var rankIndex = 0;
@@ -101,7 +101,7 @@ namespace NuLigaCore
             return teams;
         }
 
-        public static List<GameDay>? ParseGameDays(HtmlDocument doc)
+        public static List<GameDay>? ParseGameDays(HtmlDocument doc, Action<GameDay> gameDayReportLoaded)
         {
             var resultSetList = doc.DocumentNode.SelectNodes("//table[@class='result-set']");
             if (resultSetList == null || resultSetList.Count < 2)
@@ -137,13 +137,13 @@ namespace NuLigaCore
 
                 gameDays.Add(gameDay);
 
-                _ = LoadGameReportAsync(gameDay);
+                _ = LoadGameReportAsync(gameDay, gameDayReportLoaded);
             }
 
             return gameDays;
         }
 
-        private static async Task LoadGameReportAsync(GameDay? gameDay)
+        private static async Task LoadGameReportAsync(GameDay? gameDay, Action<GameDay> gameDayReportLoaded)
         {
             if (gameDay == null || string.IsNullOrWhiteSpace(gameDay.ReportUrl))
             {
@@ -156,7 +156,8 @@ namespace NuLigaCore
                 var doc = web.Load(gameDay.ReportUrl);
                 gameDay.Report = ParseGameReport(doc);
 
-                GameDayReportLoaded?.Invoke(gameDay);
+                gameDayReportLoaded(gameDay);
+                GameDayReportLoadedForGui?.Invoke(gameDay);
             });
         }
 
@@ -199,7 +200,7 @@ namespace NuLigaCore
             return new GameReport { Pairings = pairings };
         }
 
-        public static List<Player>? ParsePlayers(HtmlDocument doc)
+        public static List<Player>? ParsePlayers(HtmlDocument doc, int numberOfGameDays)
         {
             var resultSetList = doc.DocumentNode.SelectNodes("//table[@class='result-set']");
             if (resultSetList == null || resultSetList.Count < 3)
@@ -223,12 +224,14 @@ namespace NuLigaCore
 
                 var player = new Player
                 {
-                    BoardNumber = int.Parse(cells[0].InnerText),
+                    Brett = int.Parse(cells[0].InnerText),
                     Name = cells[1].InnerText.Trim().TrimStart('\n').TrimEnd('\n').Trim(),
                     DWZ = int.Parse(string.IsNullOrEmpty(cells[3].InnerText) ? "1000" : cells[3].InnerText),
                     Games = int.Parse(cells[4].InnerText),
-                    BoardPoints = cells[5].InnerText
+                    BoardPoints = cells[5].InnerText,
+                    PointsPerGameDay = new double[numberOfGameDays]
                 };
+                Array.Fill(player.PointsPerGameDay, -1);
                 players.Add(player);
             }
 

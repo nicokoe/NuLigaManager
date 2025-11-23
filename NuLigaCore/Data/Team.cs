@@ -42,6 +42,23 @@ namespace NuLigaCore.Data
             return bwTotal;
         }
 
+        public void GameDayReportLoaded(GameDay gameDay)
+        {
+            if (gameDay.Report == null)
+            {
+                return;
+            }
+
+            var isHomeTeam = gameDay.HomeTeam == Name;
+
+            foreach (var player in TeamPlayers ?? Enumerable.Empty<Player>())
+            {
+                var pairing = gameDay.Report.GetPairingForPlayer(player.Name, isHomeTeam);
+                var result = pairing?.BoardPoints.ToDouble(isHomeTeam) ?? -1;
+                player.PointsPerGameDay?[gameDay.Round - 1] = result;
+            }
+        }
+
         public override string ToString()
         {
             var boardPointsPerRankStr = string.Join(", ", BoardPointsPerRank ?? Enumerable.Empty<double>());

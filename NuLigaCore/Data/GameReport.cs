@@ -4,7 +4,14 @@ namespace NuLigaCore.Data
     {
         public List<Pairing> Pairings { get; set; } = [];
 
-        public double ComputeBw(bool forHomeTeam = true)
+        public Pairing? GetPairingForPlayer(string? playerName, bool forHomeTeam)
+        {
+            return forHomeTeam
+                ? Pairings.FirstOrDefault(p => p.HomePlayer == playerName)
+                : Pairings.FirstOrDefault(p => p.GuestPlayer == playerName);
+        }
+
+        public double ComputeBw(bool forHomeTeam)
         {
             var boardCount = Pairings.Count;
             var bwTotal = 0.0;
@@ -35,23 +42,5 @@ namespace NuLigaCore.Data
                 _ => 0.0,
             };
         }
-    }
-
-    public class Pairing
-    {
-        public int BoardNumber { get; set; }
-        public string? HomePlayer { get; set; }
-        public int HomePlayerDWZ { get; set; }
-        public string? GuestPlayer { get; set; }
-        public int GuestPlayerDWZ { get; set; }
-        public BoardPoints BoardPoints { get; set; }
-    }
-
-    public enum BoardPoints
-    {
-        HomeWin,
-        GuestWin,
-        Draw,
-        NotPlayed
     }
 }

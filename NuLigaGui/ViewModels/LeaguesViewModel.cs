@@ -16,7 +16,6 @@ namespace NuLigaGui.ViewModels
         public ObservableCollection<League> Leagues { get; }
 
         public ObservableCollection<TeamViewModel> Teams { get; } = new();
-        public ObservableCollection<Player> SelectedTeamPlayers { get; } = new();
 
         private readonly Dictionary<string, List<Team>> _teamsCache = new();
         private readonly object _cacheLock = new();
@@ -56,19 +55,7 @@ namespace NuLigaGui.ViewModels
                 {
                     _selectedTeamView = value;
                     OnPropertyChanged(nameof(SelectedTeamView));
-                    UpdateSelectedTeamPlayers();
                 }
-            }
-        }
-
-        private void UpdateSelectedTeamPlayers()
-        {
-            SelectedTeamPlayers.Clear();
-            if (SelectedTeamView == null) return;
-
-            foreach (var p in SelectedTeamView.Players)
-            {
-                SelectedTeamPlayers.Add(p);
             }
         }
 
@@ -94,7 +81,7 @@ namespace NuLigaGui.ViewModels
             _exportJsonCommand = new RelayCommand<League?>(ExportSelectedLeagueJsonAsync, l => l != null);
             _exportCsvCommand = new RelayCommand<League?>(ExportSelectedLeagueCsvAsync, l => l != null);
 
-            NuLigaParser.GameDayReportLoaded += NuLigaParser_GameDayReportLoaded;
+            NuLigaParser.GameDayReportLoadedForGui += NuLigaParser_GameDayReportLoaded;
         }
 
         private void NuLigaParser_GameDayReportLoaded(GameDay gameDay)
@@ -110,11 +97,6 @@ namespace NuLigaGui.ViewModels
                 if (vm != null)
                 {
                     vm.Refresh();
-
-                    if (SelectedTeamView == vm)
-                    {
-                        UpdateSelectedTeamPlayers();
-                    }
                 }
             });
         }

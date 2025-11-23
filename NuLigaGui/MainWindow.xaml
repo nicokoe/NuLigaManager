@@ -73,21 +73,17 @@
                 <DataGrid.RowDetailsTemplate>
                     <DataTemplate>
                         <Border Margin="4" Padding="6" BorderBrush="#DDD" BorderThickness="1" CornerRadius="4" Background="#FAFAFA">
-                            <DataGrid ItemsSource="{Binding Players}"
-                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                                  AutoGenerateColumns="False"
-                                  IsReadOnly="True"
-                                  HeadersVisibility="Column"
-                                  Height="160"
-                                  CanUserAddRows="False"
-                                  CanUserDeleteRows="False">
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Header="Brett" Binding="{Binding BoardNumber}" Width="60"/>
-                                    <DataGridTextColumn Header="Spieler" Binding="{Binding Name}" Width="*"/>
-                                    <DataGridTextColumn Header="DWZ" Binding="{Binding DWZ}" Width="80"/>
-                                    <DataGridTextColumn Header="Spiele" Binding="{Binding Games}" Width="80"/>
-                                    <DataGridTextColumn Header="BP" Binding="{Binding BoardPoints}" Width="80"/>
-                                </DataGrid.Columns>
+                            <DataGrid ItemsSource="{Binding PlayersTable}"
+                                      AutoGenerateColumns="True"
+                                      IsReadOnly="True"
+                                      HeadersVisibility="Column"
+                                      Height="160"
+                                      CanUserAddRows="False"
+                                      CanUserDeleteRows="False"
+                                      ColumnWidth="Auto"
+                                      AutoGeneratingColumn="PlayersDataGrid_AutoGeneratingColumn"
+                                      HorizontalAlignment="Stretch"
+                                      HorizontalScrollBarVisibility="Auto">
                             </DataGrid>
                         </Border>
                     </DataTemplate>

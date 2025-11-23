@@ -15,5 +15,27 @@ namespace NuLigaCore.Data
                 _ => BoardPoints.NotPlayed,
             };
         }
+
+        public static double ToDouble(this BoardPoints boardPoints, bool isHomeTeam)
+        {
+            if (!isHomeTeam)
+            {
+                return boardPoints switch
+                {
+                    BoardPoints.GuestWin => 1.0,
+                    BoardPoints.HomeWin => 0.0,
+                    BoardPoints.Draw => 0.5,
+                    _ => -1,
+                };
+            }
+
+            return boardPoints switch
+            {
+                BoardPoints.HomeWin => 1.0,
+                BoardPoints.GuestWin => 0.0,
+                BoardPoints.Draw => 0.5,
+                _ => -1,
+            };
+        }
     }
 }
