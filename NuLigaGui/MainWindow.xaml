@@ -76,10 +76,13 @@
                 </DataGrid.InputBindings>
 
                 <DataGrid.Resources>
-                    <ContextMenu x:Key="RowMenu" ItemsSource="{Binding Path=PlacementTarget, RelativeSource={RelativeSource Self}}">
-                        <MenuItem Header="Exportieren als HTML-Datei"
-                                  Command="{Binding Path=DataContext.ExportSelectedTeamJsonCommand}"
-                                  CommandParameter="{Binding Path=SelectedItems}" />
+                    <ContextMenu x:Key="RowMenu">
+                        <MenuItem Header="Spieler exportieren als JSON-Datei"
+                                  Command="{Binding ExportSelectedTeamJsonCommand}"
+                                  CommandParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}, Path=SelectedItem}" />
+                        <MenuItem Header="Spieler exportieren als CSV-Datei"
+                                  Command="{Binding ExportSelectedTeamCsvCommand}"
+                                  CommandParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}, Path=SelectedItem}" />
                     </ContextMenu>
                 </DataGrid.Resources>
                 <DataGrid.RowStyle>

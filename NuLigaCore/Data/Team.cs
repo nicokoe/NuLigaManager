@@ -55,7 +55,7 @@ namespace NuLigaCore.Data
             {
                 var pairing = gameDay.Report.GetPairingForPlayer(player.Name, isHomeTeam);
                 var result = pairing?.BoardPoints.ToDouble(isHomeTeam) ?? -1;
-                player.PointsPerGameDay?[gameDay.Round - 1] = result;
+                player.PunkteProSpieltag?[gameDay.Round - 1] = result;
             }
         }
 

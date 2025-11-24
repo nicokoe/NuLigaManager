@@ -228,10 +228,9 @@ namespace NuLigaCore
                     Name = cells[1].InnerText.Trim().TrimStart('\n').TrimEnd('\n').Trim(),
                     DWZ = int.Parse(string.IsNullOrEmpty(cells[3].InnerText) ? "1000" : cells[3].InnerText),
                     Games = int.Parse(cells[4].InnerText),
-                    BoardPoints = cells[5].InnerText,
-                    PointsPerGameDay = new double[numberOfGameDays]
+                    PunkteProSpieltag = new double[numberOfGameDays]
                 };
-                Array.Fill(player.PointsPerGameDay, -1);
+                Array.Fill(player.PunkteProSpieltag, -1);
                 players.Add(player);
             }
 

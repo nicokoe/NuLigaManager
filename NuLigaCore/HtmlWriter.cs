@@ -72,7 +72,7 @@ namespace NuLigaCore
 
                 var totalPoints = 0.0;
                 var totalGames = 0;
-                foreach (var points in player.PointsPerGameDay!)
+                foreach (var points in player.PunkteProSpieltag!)
                 {
                     if (points >= 0)
                     {

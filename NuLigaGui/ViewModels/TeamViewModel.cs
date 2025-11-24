@@ -1,6 +1,11 @@
+using CsvHelper;
 using NuLigaCore.Data;
+using NuLigaGui.Utilities;
 using System.ComponentModel;
 using System.Data;
+using System.IO;
+using System.Text.Json;
+using System.Windows.Input;
 
 namespace NuLigaGui.ViewModels
 {
@@ -8,11 +13,18 @@ namespace NuLigaGui.ViewModels
     {
         private readonly Team _team;
         private DataTable? _playersTable;
+        private readonly RelayCommand<TeamViewModel?> _exportTeamJsonCommand;
+        private readonly RelayCommand<TeamViewModel?> _exportTeamCsvCommand;
+        public ICommand ExportSelectedTeamJsonCommand => _exportTeamJsonCommand;
+        public ICommand ExportSelectedTeamCsvCommand => _exportTeamCsvCommand;
 
         public TeamViewModel(Team team)
         {
             _team = team ?? throw new ArgumentNullException(nameof(team));
             BuildPlayersTable();
+
+            _exportTeamJsonCommand = new RelayCommand<TeamViewModel?>(ExportSelectedTeamJsonAsync, l => l != null);
+            _exportTeamCsvCommand = new RelayCommand<TeamViewModel?>(ExportSelectedTeamCsvAsync, l => l != null);
         }
 
         public int Rank => _team.Rang;
@@ -42,7 +54,7 @@ namespace NuLigaGui.ViewModels
 
             // determine number of rounds from team.GameDays or first player's PointsPerGameDay
             var rounds = _team.GameDays?.Count
-                         ?? _team.TeamPlayers?.FirstOrDefault()?.PointsPerGameDay?.Length
+                         ?? _team.TeamPlayers?.FirstOrDefault()?.PunkteProSpieltag?.Length
                          ?? 0;
 
             for (var r = 1; r <= rounds; r++)
@@ -74,9 +86,9 @@ namespace NuLigaGui.ViewModels
                 for (var i = 0; i < rounds; i++)
                 {
                     var pointsString = "-";
-                    if (p.PointsPerGameDay != null && i < p.PointsPerGameDay.Length)
+                    if (p.PunkteProSpieltag != null && i < p.PunkteProSpieltag.Length)
                     {
-                        var points = p.PointsPerGameDay[i];
+                        var points = p.PunkteProSpieltag[i];
                         pointsString = points == -1 ? "-" : (points == 1000 ? "+" : points.ToString());
                         if (points >= 0)
                         {
@@ -102,6 +114,39 @@ namespace NuLigaGui.ViewModels
             OnPropertyChanged(nameof(BoardPointsSum));
             OnPropertyChanged(nameof(AverageDwz));
             OnPropertyChanged(nameof(BerlinTieBreak));
+        }
+
+        public async Task ExportSelectedTeamJsonAsync(TeamViewModel? team)
+        {
+            if (team == null) return;
+
+            var json = JsonSerializer.Serialize(team.Players, new JsonSerializerOptions { WriteIndented = true });
+
+            var defaultFileName = string.IsNullOrWhiteSpace(team.Name) ? "team" : $"{team.Name.ToValidFileName()}.json";
+            var path = DialogExtensions.GetPathWithSaveFileDialog(defaultFileName, "JSON files (*.json)|*.json|All files (*.*)|*.*", "json");
+
+            if (string.IsNullOrWhiteSpace(path)) return;
+
+            await File.WriteAllTextAsync(path, json).ConfigureAwait(false);
+        }
+
+        public async Task ExportSelectedTeamCsvAsync(TeamViewModel? team)
+        {
+            if (team == null) return;
+
+            var defaultFileName = string.IsNullOrWhiteSpace(team.Name) ? "team" : $"{team.Name.ToValidFileName()}.csv";
+            var path = DialogExtensions.GetPathWithSaveFileDialog(defaultFileName, "CSV files (*.csv)|*.csv|All files (*.*)|*.*", "csv");
+
+            if (string.IsNullOrWhiteSpace(path)) return;
+
+            using (var writer = new StreamWriter(path))
+            {
+                using (var csv = new CsvWriter(writer, System.Globalization.CultureInfo.InvariantCulture))
+                {
+                    csv.Context.RegisterClassMap<PlayerMap>();
+                    await csv.WriteRecordsAsync(team.Players).ConfigureAwait(false);
+                }
+            }
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

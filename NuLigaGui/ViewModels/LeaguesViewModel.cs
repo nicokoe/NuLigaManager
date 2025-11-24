@@ -24,12 +24,10 @@ namespace NuLigaGui.ViewModels
         private readonly RelayCommand _copyTeamCommand;
         private readonly RelayCommand<League?> _exportJsonCommand;
         private readonly RelayCommand<League?> _exportCsvCommand;
-        private readonly RelayCommand<Team?> _exportTeamJsonCommand;
         public ICommand CopySelectedLeagueCommand => _copyCommand;
         public ICommand CopySelectedTeamCommand => _copyTeamCommand;
         public ICommand ExportSelectedLeagueJsonCommand => _exportJsonCommand;
         public ICommand ExportSelectedLeagueCsvCommand => _exportCsvCommand;
-        public ICommand ExportSelectedTeamJsonCommand => _exportTeamJsonCommand;
 
         private League? _selectedLeague;
         public League? SelectedLeague
@@ -86,7 +84,6 @@ namespace NuLigaGui.ViewModels
             _copyTeamCommand = new RelayCommand(CopySelectedTeamPlayersAsync, () => SelectedTeamView != null);
             _exportJsonCommand = new RelayCommand<League?>(ExportSelectedLeagueJsonAsync, l => l != null);
             _exportCsvCommand = new RelayCommand<League?>(ExportSelectedLeagueCsvAsync, l => l != null);
-            _exportTeamJsonCommand = new RelayCommand<Team?>(ExportSelectedTeamJsonAsync, l => l != null);
 
             NuLigaParser.GameDayReportLoadedForGui += NuLigaParser_GameDayReportLoaded;
         }
@@ -207,7 +204,7 @@ namespace NuLigaGui.ViewModels
             if (teamView == null) return;
 
             var rounds = teamView.GameDays?.Count
-                         ?? teamView.Players.FirstOrDefault()?.PointsPerGameDay?.Length
+                         ?? teamView.Players.FirstOrDefault()?.PunkteProSpieltag?.Length
                          ?? 0;
 
             var html = HtmlTableWriter.StartTable()
@@ -258,11 +255,6 @@ namespace NuLigaGui.ViewModels
                     await csv.WriteRecordsAsync(teams).ConfigureAwait(false);
                 }
             }
-        }
-
-        public async Task ExportSelectedTeamJsonAsync(Team? team)
-        {
-            if (team == null) return;
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
