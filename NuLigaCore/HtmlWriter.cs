@@ -10,12 +10,17 @@ namespace NuLigaCore
             return "<figure class=\"styled-table\"><table>";
         }
 
-        public static string GenerateTableHeader()
+        public static string GenerateLeagueTableHeader()
         {
             return $"<thead><tr><td width=\"7%\">Rang</td><td>Mannschaft</td><td>DWZ</td><td>Spiele</td><td>Punkte</td><td>BP</td><td>BW</td></tr></thead>";
         }
 
-        public static string GenerateBody(List<Team> teams)
+        public static string GeneratePlayerTableHeader()
+        {
+            return $"<thead><tr><td width=\"7%\">Rang</td><td width=\"15%\">Name</td><td>DWZ</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>Total</td></tr></thead>";
+        }
+
+        public static string GenerateTeamsBody(List<Team> teams)
         {
             var stringBuilder = new StringBuilder();
             stringBuilder.Append("<tbody>");
@@ -50,7 +55,39 @@ namespace NuLigaCore
             return stringBuilder.ToString();
         }
 
-        public static string GenerateTeamHtmlTableRow(Team team, string style)
+        public static string GeneratePlayersBody(IEnumerable<Player> players)
+        {
+            var stringBuilder = new StringBuilder();
+            stringBuilder.Append("<tbody>");
+
+            foreach (var player in players)
+            {
+                var dwzDisplay = player.DWZ == 1000 ? "-" : player.DWZ.ToString();
+                var row = $"<tr><td>{player.Brett}</td><td>{player.Name}</td><td>{dwzDisplay}</td>";
+
+                var totalPoints = 0.0;
+                var totalGames = 0;
+                foreach (var points in player.PointsPerGameDay!)
+                {
+                    if (points >= 0)
+                    {
+                        totalPoints += points;
+                        totalGames++;
+                    }
+                    var pointsString = points == -1 ? "-" : points.ToString();
+                    row += $"<td>{pointsString}</td>";
+                }
+                var total = totalPoints.ToString() + "/" + totalGames.ToString();
+                row += $"<td>{total}</td></tr>";
+
+                stringBuilder.Append(row);
+            }
+
+            stringBuilder.Append("</tbody>");
+            return stringBuilder.ToString();
+        }
+
+        private static string GenerateTeamHtmlTableRow(Team team, string style)
         {
             var teamBw = team.ComputeBerlinTieBreakSumOverAllGameDays();
             return $"<tr{style}><td>{team.Rang}</td><td>{team.Name}</td><td>{team.DWZ}</td><td>{team.Spiele}</td><td>{team.Punkte}</td><td>{team.BP}</td><td>{teamBw}</td></tr>";

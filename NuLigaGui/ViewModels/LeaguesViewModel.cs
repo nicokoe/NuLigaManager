@@ -1,7 +1,7 @@
 using CsvHelper;
-using Microsoft.Win32;
 using NuLigaCore;
 using NuLigaCore.Data;
+using NuLigaGui.Utilities;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
@@ -21,11 +21,15 @@ namespace NuLigaGui.ViewModels
         private readonly object _cacheLock = new();
 
         private readonly RelayCommand _copyCommand;
+        private readonly RelayCommand _copyTeamCommand;
         private readonly RelayCommand<League?> _exportJsonCommand;
         private readonly RelayCommand<League?> _exportCsvCommand;
+        private readonly RelayCommand<Team?> _exportTeamJsonCommand;
         public ICommand CopySelectedLeagueCommand => _copyCommand;
+        public ICommand CopySelectedTeamCommand => _copyTeamCommand;
         public ICommand ExportSelectedLeagueJsonCommand => _exportJsonCommand;
         public ICommand ExportSelectedLeagueCsvCommand => _exportCsvCommand;
+        public ICommand ExportSelectedTeamJsonCommand => _exportTeamJsonCommand;
 
         private League? _selectedLeague;
         public League? SelectedLeague
@@ -40,7 +44,6 @@ namespace NuLigaGui.ViewModels
 
                     _ = LoadTeamsAsync(_selectedLeague);
                     _copyCommand.RaiseCanExecuteChanged();
-                    _exportJsonCommand.RaiseCanExecuteChanged();
                 }
             }
         }
@@ -55,6 +58,8 @@ namespace NuLigaGui.ViewModels
                 {
                     _selectedTeamView = value;
                     OnPropertyChanged(nameof(SelectedTeamView));
+
+                    _copyCommand.RaiseCanExecuteChanged();
                 }
             }
         }
@@ -78,8 +83,10 @@ namespace NuLigaGui.ViewModels
             Leagues = new ObservableCollection<League>(leagues.Where(l => l is not null).ToList());
 
             _copyCommand = new RelayCommand(CopySelectedLeagueAsync, () => SelectedLeague != null);
+            _copyTeamCommand = new RelayCommand(CopySelectedTeamPlayersAsync, () => SelectedTeamView != null);
             _exportJsonCommand = new RelayCommand<League?>(ExportSelectedLeagueJsonAsync, l => l != null);
             _exportCsvCommand = new RelayCommand<League?>(ExportSelectedLeagueCsvAsync, l => l != null);
+            _exportTeamJsonCommand = new RelayCommand<Team?>(ExportSelectedTeamJsonAsync, l => l != null);
 
             NuLigaParser.GameDayReportLoadedForGui += NuLigaParser_GameDayReportLoaded;
         }
@@ -181,11 +188,29 @@ namespace NuLigaGui.ViewModels
             var teams = await LoadTeamsAsync(league).ConfigureAwait(false);
 
             var html = HtmlTableWriter.StartTable()
-                       + HtmlTableWriter.GenerateTableHeader()
-                       + HtmlTableWriter.GenerateBody(teams)
+                       + HtmlTableWriter.GenerateLeagueTableHeader()
+                       + HtmlTableWriter.GenerateTeamsBody(teams)
                        + HtmlTableWriter.EndTable();
             
-            // Copy to clipboard on UI thread
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                var data = new DataObject();
+                data.SetData(DataFormats.Html, html);
+                data.SetData(DataFormats.Text, html);
+                Clipboard.SetDataObject(data, true);
+            });
+        }
+
+        public async Task CopySelectedTeamPlayersAsync()
+        {
+            var teamView = SelectedTeamView;
+            if (teamView == null) return;
+
+            var html = HtmlTableWriter.StartTable()
+                       + HtmlTableWriter.GeneratePlayerTableHeader()
+                       + HtmlTableWriter.GeneratePlayersBody(teamView.Players)
+                       + HtmlTableWriter.EndTable();
+
             Application.Current.Dispatcher.Invoke(() =>
             {
                 var data = new DataObject();
@@ -202,22 +227,8 @@ namespace NuLigaGui.ViewModels
             var teams = await LoadTeamsAsync(league).ConfigureAwait(false);
             var json = JsonSerializer.Serialize(teams, new JsonSerializerOptions { WriteIndented = true });
 
-            string? path = null;
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                var dlg = new SaveFileDialog
-                {
-                    FileName = string.IsNullOrWhiteSpace(league.Name) ? "teams" : $"{SanitizeFileName(league.Name)}.json",
-                    Filter = "JSON files (*.json)|*.json|All files (*.*)|*.*",
-                    DefaultExt = "json",
-                    AddExtension = true
-                };
-
-                if (dlg.ShowDialog() == true)
-                {
-                    path = dlg.FileName;
-                }
-            });
+            var defaultFileName = string.IsNullOrWhiteSpace(league.Name) ? "teams" : $"{league.Name.ToValidFileName()}.json";
+            var path = DialogExtensions.GetPathWithSaveFileDialog(defaultFileName, "JSON files (*.json)|*.json|All files (*.*)|*.*", "json");
 
             if (string.IsNullOrWhiteSpace(path)) return;
 
@@ -230,25 +241,10 @@ namespace NuLigaGui.ViewModels
 
             var teams = await LoadTeamsAsync(league).ConfigureAwait(false);
 
-            string? path = null;
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                var dlg = new SaveFileDialog
-                {
-                    FileName = string.IsNullOrWhiteSpace(league.Name) ? "teams" : $"{SanitizeFileName(league.Name)}.csv",
-                    Filter = "CSV files (*.csv)|*.csv|All files (*.*)|*.*",
-                    DefaultExt = "csv",
-                    AddExtension = true
-                };
-
-                if (dlg.ShowDialog() == true)
-                {
-                    path = dlg.FileName;
-                }
-            });
+            var defaultFileName = string.IsNullOrWhiteSpace(league.Name) ? "teams" : $"{league.Name.ToValidFileName()}.csv";
+            var path = DialogExtensions.GetPathWithSaveFileDialog(defaultFileName, "CSV files (*.csv)|*.csv|All files (*.*)|*.*", "csv");
 
             if (string.IsNullOrWhiteSpace(path)) return;
-
 
             using (var writer = new StreamWriter(path))
             {
@@ -260,13 +256,9 @@ namespace NuLigaGui.ViewModels
             }
         }
 
-        private static string SanitizeFileName(string input)
+        public async Task ExportSelectedTeamJsonAsync(Team? team)
         {
-            foreach (var c in Path.GetInvalidFileNameChars())
-            {
-                input = input.Replace(c, '_');
-            }
-            return input.Replace(' ', '_');
+            if (team == null) return;
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

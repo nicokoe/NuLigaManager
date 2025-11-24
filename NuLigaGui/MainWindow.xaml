@@ -55,6 +55,7 @@
             <DataGrid Grid.Row="1"
                   ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                   ItemsSource="{Binding Teams}"
+                  SelectedItem="{Binding SelectedTeamView, Mode=TwoWay}"
                   AutoGenerateColumns="False"
                   IsReadOnly="True"
                   SelectionMode="Single"
@@ -69,6 +70,23 @@
                     <DataGridTextColumn Header="BP" Binding="{Binding BoardPointsSum}" Width="80"/>
                     <DataGridTextColumn Header="BW" Binding="{Binding BerlinTieBreak}" Width="80"/>
                 </DataGrid.Columns>
+
+                <DataGrid.InputBindings>
+                    <KeyBinding Key="C" Modifiers="Control" Command="{Binding DataContext.CopySelectedTeamCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" />
+                </DataGrid.InputBindings>
+
+                <DataGrid.Resources>
+                    <ContextMenu x:Key="RowMenu" ItemsSource="{Binding Path=PlacementTarget, RelativeSource={RelativeSource Self}}">
+                        <MenuItem Header="Exportieren als HTML-Datei"
+                                  Command="{Binding Path=DataContext.ExportSelectedTeamJsonCommand}"
+                                  CommandParameter="{Binding Path=SelectedItems}" />
+                    </ContextMenu>
+                </DataGrid.Resources>
+                <DataGrid.RowStyle>
+                    <Style TargetType="DataGridRow" >
+                        <Setter Property="ContextMenu" Value="{StaticResource RowMenu}" />
+                    </Style>
+                </DataGrid.RowStyle>
 
                 <DataGrid.RowDetailsTemplate>
                     <DataTemplate>

@@ -1,7 +1,6 @@
 using NuLigaCore.Data;
 using System.ComponentModel;
 using System.Data;
-using System.Globalization;
 
 namespace NuLigaGui.ViewModels
 {
