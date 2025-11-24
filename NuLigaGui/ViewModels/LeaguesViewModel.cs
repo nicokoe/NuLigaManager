@@ -206,8 +206,12 @@ namespace NuLigaGui.ViewModels
             var teamView = SelectedTeamView;
             if (teamView == null) return;
 
+            var rounds = teamView.GameDays?.Count
+                         ?? teamView.Players.FirstOrDefault()?.PointsPerGameDay?.Length
+                         ?? 0;
+
             var html = HtmlTableWriter.StartTable()
-                       + HtmlTableWriter.GeneratePlayerTableHeader()
+                       + HtmlTableWriter.GeneratePlayerTableHeader(rounds)
                        + HtmlTableWriter.GeneratePlayersBody(teamView.Players)
                        + HtmlTableWriter.EndTable();
 

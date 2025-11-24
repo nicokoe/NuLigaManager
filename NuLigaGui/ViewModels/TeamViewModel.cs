@@ -25,6 +25,7 @@ namespace NuLigaGui.ViewModels
         public DataView? PlayersTable => _playersTable?.DefaultView;
 
         public IEnumerable<Player> Players => _team.TeamPlayers ?? Enumerable.Empty<Player>();
+        public IList<GameDay>? GameDays => _team.GameDays;
 
         public bool ContainsGameDay(GameDay gameDay) =>
             _team.GameDays != null && _team.GameDays.Contains(gameDay);
@@ -72,18 +73,18 @@ namespace NuLigaGui.ViewModels
                 var totalGames = 0;
                 for (var i = 0; i < rounds; i++)
                 {
-                    var value = "-";
+                    var pointsString = "-";
                     if (p.PointsPerGameDay != null && i < p.PointsPerGameDay.Length)
                     {
                         var points = p.PointsPerGameDay[i];
-                        value = (points < 0) ? "-" : points.ToString();
+                        pointsString = points == -1 ? "-" : (points == 1000 ? "+" : points.ToString());
                         if (points >= 0)
                         {
-                            totalPoints += points;
+                            totalPoints += (points == 1000 ? 1 : points);
                             totalGames++;
                         }
                     }
-                    row[$"{i + 1}"] = value;
+                    row[$"{i + 1}"] = pointsString;
                 }
 
                 row["Total"] = totalPoints.ToString() + "/" + totalGames.ToString();

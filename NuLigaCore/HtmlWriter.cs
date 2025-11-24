@@ -15,9 +15,14 @@ namespace NuLigaCore
             return $"<thead><tr><td width=\"7%\">Rang</td><td>Mannschaft</td><td>DWZ</td><td>Spiele</td><td>Punkte</td><td>BP</td><td>BW</td></tr></thead>";
         }
 
-        public static string GeneratePlayerTableHeader()
+        public static string GeneratePlayerTableHeader(int rounds)
         {
-            return $"<thead><tr><td width=\"7%\">Rang</td><td width=\"15%\">Name</td><td>DWZ</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>Total</td></tr></thead>";
+            var header = "<thead><tr><td width=\"7%\">Brett</td><td width=\"15%\">Name</td><td>DWZ</td>";
+            for (var i = 1; i <= rounds; i++)
+            {
+                header += $"<td>{i}</td>";
+            }
+            return header += "<td>Total</td></tr></thead>";
         }
 
         public static string GenerateTeamsBody(List<Team> teams)
@@ -71,10 +76,10 @@ namespace NuLigaCore
                 {
                     if (points >= 0)
                     {
-                        totalPoints += points;
+                        totalPoints += (points == 1000 ? 1 : points);
                         totalGames++;
                     }
-                    var pointsString = points == -1 ? "-" : points.ToString();
+                    var pointsString = points == -1 ? "-" : (points == 1000 ? "+" : points.ToString());
                     row += $"<td>{pointsString}</td>";
                 }
                 var total = totalPoints.ToString() + "/" + totalGames.ToString();

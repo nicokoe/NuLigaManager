@@ -31,6 +31,7 @@ namespace NuLigaCore.Data
                 return boardPoints switch
                 {
                     BoardPoints.GuestWin => 1.0,
+                    BoardPoints.GuestWinByDefault => 1.0,
                     BoardPoints.Draw => 0.5,
                     _ => 0.0,
                 };
@@ -38,6 +39,7 @@ namespace NuLigaCore.Data
             return boardPoints switch
             {
                 BoardPoints.HomeWin => 1.0,
+                BoardPoints.HomeWinByDefault => 1.0,
                 BoardPoints.Draw => 0.5,
                 _ => 0.0,
             };
