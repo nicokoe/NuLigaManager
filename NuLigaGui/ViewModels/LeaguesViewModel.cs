@@ -16,6 +16,7 @@ namespace NuLigaGui.ViewModels
         public ObservableCollection<League> Leagues { get; }
 
         public ObservableCollection<TeamViewModel> Teams { get; } = new();
+        public ObservableCollection<GameDay> GameDays { get; } = new();
 
         private readonly Dictionary<string, List<Team>> _teamsCache = new();
         private readonly object _cacheLock = new();
@@ -127,6 +128,8 @@ namespace NuLigaGui.ViewModels
 
             if (cached is not null)
             {
+                var lastGameDayReport = NuLigaTransformer.TransformTeamsToGameDayReport(cached);
+
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     Teams.Clear();
@@ -135,7 +138,14 @@ namespace NuLigaGui.ViewModels
                         Teams.Add(vm);
                     }
                     SelectedTeamView = null;
+
+                    GameDays.Clear();
+                    foreach (var gd in lastGameDayReport)
+                    {
+                        GameDays.Add(gd);
+                    }
                 });
+
                 return cached;
             }
 
@@ -153,6 +163,8 @@ namespace NuLigaGui.ViewModels
                     _teamsCache[key] = teams;
                 }
 
+                var lastGameDayReport = NuLigaTransformer.TransformTeamsToGameDayReport(teams);
+
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     Teams.Clear();
@@ -161,6 +173,12 @@ namespace NuLigaGui.ViewModels
                         Teams.Add(vm);
                     }
                     SelectedTeamView = null;
+
+                    GameDays.Clear();
+                    foreach (var gd in lastGameDayReport)
+                    {
+                        GameDays.Add(gd);
+                    }
                 });
 
                 return teams;
@@ -168,7 +186,7 @@ namespace NuLigaGui.ViewModels
             catch (Exception)
             {
                 // Consider logging or surface error via another property/command.
-                return new List<Team>();
+                return [];
             }
             finally
             {

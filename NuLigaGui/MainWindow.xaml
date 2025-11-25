@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NuLigaGui"
         mc:Ignorable="d"
-        Title="NuLiga Manager" Height="600" Width="1000">
+        Title="NuLiga Manager" Height="600" Width="1100">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     </Window.Resources>
@@ -43,6 +43,7 @@
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
@@ -53,6 +54,27 @@
             </StackPanel>
 
             <DataGrid Grid.Row="1"
+                      ItemsSource="{Binding GameDays}"
+                      AutoGenerateColumns="False"
+                      IsReadOnly="True"
+                      HeadersVisibility="Column"
+                      CanUserAddRows="False"
+                      CanUserDeleteRows="False"
+                      Margin="0,0,0,8"
+                      ColumnWidth="Auto"
+                      Height="150">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Runde" Binding="{Binding Round}" Width="50"/>
+                    <DataGridTextColumn Header="Datum" Binding="{Binding Date, StringFormat=d}" Width="80"/>
+                    <DataGridTextColumn Header="Heim" Binding="{Binding HomeTeam}" Width="*"/>
+                    <DataGridTextColumn Header="DWZ" Binding="{Binding HomeTeamDWZ}" Width="60"/>
+                    <DataGridTextColumn Header="Gast" Binding="{Binding GuestTeam}" Width="*"/>
+                    <DataGridTextColumn Header="DWZ" Binding="{Binding GuestTeamDWZ}" Width="60"/>
+                    <DataGridTextColumn Header="Ergebnis" Binding="{Binding BoardPoints}" Width="80"/>
+                </DataGrid.Columns>
+            </DataGrid>
+            
+            <DataGrid Grid.Row="2"
                   ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                   ItemsSource="{Binding Teams}"
                   SelectedItem="{Binding SelectedTeamView, Mode=TwoWay}"
@@ -62,7 +84,7 @@
                   CanUserAddRows="False"
                   CanUserDeleteRows="False">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Rang" Binding="{Binding Rank}" Width="60"/>
+                    <DataGridTextColumn Header="Rang" Binding="{Binding Rank}" Width="50"/>
                     <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/>
                     <DataGridTextColumn Header="DWZ" Binding="{Binding AverageDwz}" Width="80"/>
                     <DataGridTextColumn Header="Spiele" Binding="{Binding Games}" Width="80"/>
