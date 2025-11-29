@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Text.Json;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Input;
 
 namespace NuLigaGui.ViewModels
@@ -25,10 +26,12 @@ namespace NuLigaGui.ViewModels
         private readonly RelayCommand _copyTeamCommand;
         private readonly RelayCommand<League?> _exportJsonCommand;
         private readonly RelayCommand<League?> _exportCsvCommand;
+        private readonly RelayCommand _collapseSelectionsCommand;
         public ICommand CopySelectedLeagueCommand => _copyCommand;
         public ICommand CopySelectedTeamCommand => _copyTeamCommand;
         public ICommand ExportSelectedLeagueJsonCommand => _exportJsonCommand;
         public ICommand ExportSelectedLeagueCsvCommand => _exportCsvCommand;
+        public ICommand CollapseSelectionsCommand => _collapseSelectionsCommand;
 
         private League? _selectedLeague;
         public League? SelectedLeague
@@ -59,6 +62,24 @@ namespace NuLigaGui.ViewModels
                     OnPropertyChanged(nameof(SelectedTeamView));
 
                     _copyCommand.RaiseCanExecuteChanged();
+
+                    _collapseSelectionsCommand.RaiseCanExecuteChanged();
+                }
+            }
+        }
+
+        private GameDay? _selectedGameDay;
+        public GameDay? SelectedGameDay
+        {
+            get => _selectedGameDay;
+            set
+            {
+                if (_selectedGameDay != value)
+                {
+                    _selectedGameDay = value;
+                    OnPropertyChanged(nameof(SelectedGameDay));
+
+                    _collapseSelectionsCommand.RaiseCanExecuteChanged();
                 }
             }
         }
@@ -85,6 +106,8 @@ namespace NuLigaGui.ViewModels
             _copyTeamCommand = new RelayCommand(CopySelectedTeamPlayersAsync, () => SelectedTeamView != null);
             _exportJsonCommand = new RelayCommand<League?>(ExportSelectedLeagueJsonAsync, l => l != null);
             _exportCsvCommand = new RelayCommand<League?>(ExportSelectedLeagueCsvAsync, l => l != null);
+
+            _collapseSelectionsCommand = new RelayCommand(CollapseSelectionsAsync, () => SelectedGameDay != null || SelectedTeamView != null);
 
             NuLigaParser.GameDayReportLoadedForGui += NuLigaParser_GameDayReportLoaded;
         }
@@ -144,6 +167,9 @@ namespace NuLigaGui.ViewModels
                     {
                         GameDays.Add(gd);
                     }
+
+                    SelectedGameDay = null;
+                    _collapseSelectionsCommand.RaiseCanExecuteChanged();
                 });
 
                 return cached;
@@ -179,6 +205,9 @@ namespace NuLigaGui.ViewModels
                     {
                         GameDays.Add(gd);
                     }
+
+                    SelectedGameDay = null;
+                    _collapseSelectionsCommand.RaiseCanExecuteChanged();
                 });
 
                 return teams;
@@ -192,6 +221,13 @@ namespace NuLigaGui.ViewModels
             {
                 IsLoading = false;
             }
+        }
+
+        private Task CollapseSelectionsAsync()
+        {
+            SelectedGameDay = null;
+            SelectedTeamView = null;
+            return Task.CompletedTask;
         }
 
         public async Task CopySelectedLeagueAsync()

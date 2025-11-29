@@ -192,7 +192,7 @@ namespace NuLigaCore
                     HomePlayerDWZ = int.Parse(string.IsNullOrEmpty(homePlayerDWZ) ? "1000" : homePlayerDWZ),
                     GuestPlayer = cells[3].InnerText.TrimStart('\n', '\t', ' ').TrimEnd('\n', '\t', ' '),
                     GuestPlayerDWZ = int.Parse(string.IsNullOrEmpty(guestPlayerDWZ) ? "1000" : guestPlayerDWZ),
-                    BoardPoints = cells[5].InnerText.TrimStart('\n', '\t', ' ').TrimEnd('\n', '\t', ' ').AsBoardPoints()
+                    BoardPointsRaw = cells[5].InnerText.TrimStart('\n', '\t', ' ').TrimEnd('\n', '\t', ' ')
                 };
                 pairings.Add(pairing);
             }

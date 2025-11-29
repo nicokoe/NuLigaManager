@@ -47,22 +47,42 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                <TextBlock Text="{Binding SelectedLeague.Name}" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                <TextBlock Text="  " />
-                <TextBlock Text="(loading...)" Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}" VerticalAlignment="Center"/>
-            </StackPanel>
+            <Grid Grid.Row="0" Margin="0,0,0,8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Orientation="Horizontal" Grid.Column="0">
+                    <TextBlock Text="{Binding SelectedLeague.Name}" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    <TextBlock Text="  " />
+                    <TextBlock Text="(loading...)" Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <Button Grid.Column="1"
+                        Content="Zuklappen"
+                        Margin="8,0,0,0"
+                        VerticalAlignment="Center"
+                        ToolTip="Klappt Spieler oder Spielpaarungen zusammen"
+                        Command="{Binding CollapseSelectionsCommand}" />
+            </Grid>
 
             <DataGrid Grid.Row="1"
+                      ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                       ItemsSource="{Binding GameDays}"
+                      SelectedItem="{Binding SelectedGameDay, Mode=TwoWay}"
                       AutoGenerateColumns="False"
                       IsReadOnly="True"
                       HeadersVisibility="Column"
+                      SelectionMode="Single"
                       CanUserAddRows="False"
                       CanUserDeleteRows="False"
                       Margin="0,0,0,8"
                       ColumnWidth="Auto"
-                      Height="150">
+          VerticalAlignment="Top"
+          ScrollViewer.VerticalScrollBarVisibility="Disabled"
+          ScrollViewer.CanContentScroll="False"
+          EnableRowVirtualization="False">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Runde" Binding="{Binding Round}" Width="50"/>
                     <DataGridTextColumn Header="Datum" Binding="{Binding Date, StringFormat=d}" Width="80"/>
@@ -72,6 +92,32 @@
                     <DataGridTextColumn Header="DWZ" Binding="{Binding GuestTeamDWZ}" Width="60"/>
                     <DataGridTextColumn Header="Ergebnis" Binding="{Binding BoardPoints}" Width="80"/>
                 </DataGrid.Columns>
+
+                <DataGrid.RowDetailsTemplate>
+                    <DataTemplate>
+                        <Border Margin="8" Padding="6" BorderBrush="#DDD" BorderThickness="1" CornerRadius="4" Background="#FAFAFA">
+                            <DataGrid ItemsSource="{Binding Report.Pairings}"
+                                      AutoGenerateColumns="False"
+                                      IsReadOnly="True"
+                                      HeadersVisibility="Column"
+                                      Height="160"
+                                      CanUserAddRows="False"
+                                      CanUserDeleteRows="False"
+                                      ColumnWidth="Auto"
+                                      HorizontalAlignment="Stretch"
+                                      HorizontalScrollBarVisibility="Auto">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Brett" Binding="{Binding BoardNumber}" Width="60"/>
+                                    <DataGridTextColumn Header="Heim" Binding="{Binding HomePlayer}" Width="*"/>
+                                    <DataGridTextColumn Header="DWZ" Binding="{Binding HomePlayerDWZ}" Width="60"/>
+                                    <DataGridTextColumn Header="Gast" Binding="{Binding GuestPlayer}" Width="*"/>
+                                    <DataGridTextColumn Header="DWZ" Binding="{Binding GuestPlayerDWZ}" Width="60"/>
+                                    <DataGridTextColumn Header="Ergebnis" Binding="{Binding BoardPointsRaw}" Width="80"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Border>
+                    </DataTemplate>
+                </DataGrid.RowDetailsTemplate>
             </DataGrid>
             
             <DataGrid Grid.Row="2"

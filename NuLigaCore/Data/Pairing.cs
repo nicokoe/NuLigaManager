@@ -7,6 +7,7 @@ namespace NuLigaCore.Data
         public int HomePlayerDWZ { get; set; }
         public string? GuestPlayer { get; set; }
         public int GuestPlayerDWZ { get; set; }
-        public BoardPoints BoardPoints { get; set; }
+        public string? BoardPointsRaw { get; set; }
+        public BoardPoints BoardPoints => BoardPointsRaw?.AsBoardPoints() ?? BoardPoints.NotPlayed;
     }
 }
