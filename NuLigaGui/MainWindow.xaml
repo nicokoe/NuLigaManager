@@ -29,12 +29,19 @@
                      HorizontalAlignment="Stretch">
                 <ListBox.ContextMenu>
                     <ContextMenu DataContext="{Binding Path=PlacementTarget, RelativeSource={RelativeSource Self}}">
-                        <MenuItem Header="Exportieren als JSON-Datei"
-                                  Command="{Binding Path=DataContext.ExportSelectedLeagueJsonCommand}"
-                                  CommandParameter="{Binding Path=SelectedItem}" />
-                        <MenuItem Header="Exportieren als CSV-Datei"
+                        <MenuItem Header="Liga-Tabelle exportieren">
+                            <MenuItem Header="Als CSV-Datei"
                                   Command="{Binding Path=DataContext.ExportSelectedLeagueCsvCommand}"
                                   CommandParameter="{Binding Path=SelectedItem}" />
+                            <MenuItem Header="Als JSON-Datei"
+                                  Command="{Binding Path=DataContext.ExportSelectedLeagueJsonCommand}"
+                                  CommandParameter="{Binding Path=SelectedItem}" />
+                        </MenuItem>
+                        <MenuItem Header="Letzten Spieltag exportieren">
+                            <MenuItem Header="Als CSV-Datei"
+                                  Command="{Binding Path=DataContext.ExportGameReportCsvCommand}"
+                                  CommandParameter="{Binding Path=SelectedItem}" />
+                        </MenuItem>
                     </ContextMenu>
                 </ListBox.ContextMenu>
             </ListBox>
@@ -84,14 +91,27 @@
           ScrollViewer.CanContentScroll="False"
           EnableRowVirtualization="False">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Runde" Binding="{Binding Round}" Width="50"/>
-                    <DataGridTextColumn Header="Datum" Binding="{Binding Date, StringFormat=d}" Width="80"/>
-                    <DataGridTextColumn Header="Heim" Binding="{Binding HomeTeam}" Width="*"/>
-                    <DataGridTextColumn Header="DWZ" Binding="{Binding HomeTeamDWZ}" Width="60"/>
-                    <DataGridTextColumn Header="Gast" Binding="{Binding GuestTeam}" Width="*"/>
-                    <DataGridTextColumn Header="DWZ" Binding="{Binding GuestTeamDWZ}" Width="60"/>
-                    <DataGridTextColumn Header="Ergebnis" Binding="{Binding BoardPoints}" Width="80"/>
+                    <DataGridTextColumn Header="Runde" Binding="{Binding Runde}" Width="50"/>
+                    <DataGridTextColumn Header="Datum" Binding="{Binding Datum, StringFormat=d}" Width="80"/>
+                    <DataGridTextColumn Header="Heim" Binding="{Binding HeimMannschaft}" Width="*"/>
+                    <DataGridTextColumn Header="DWZ" Binding="{Binding HeimMannschaftDWZ}" Width="60"/>
+                    <DataGridTextColumn Header="Gast" Binding="{Binding GastMannschaft}" Width="*"/>
+                    <DataGridTextColumn Header="DWZ" Binding="{Binding GastMannschaftDWZ}" Width="60"/>
+                    <DataGridTextColumn Header="Ergebnis" Binding="{Binding BrettPunkte}" Width="80"/>
                 </DataGrid.Columns>
+
+                <DataGrid.Resources>
+                    <ContextMenu x:Key="GameDayRowMenu">
+                        <MenuItem Header="Alle Paarungen exportieren als CSV-Datei"
+                                  Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=DataContext.ExportSelectedGameDayCsvCommand}"
+                                  CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                    </ContextMenu>
+                </DataGrid.Resources>
+                <DataGrid.RowStyle>
+                    <Style TargetType="DataGridRow" >
+                        <Setter Property="ContextMenu" Value="{StaticResource GameDayRowMenu}" />
+                    </Style>
+                </DataGrid.RowStyle>
 
                 <DataGrid.RowDetailsTemplate>
                     <DataTemplate>
@@ -107,12 +127,12 @@
                                       HorizontalAlignment="Stretch"
                                       HorizontalScrollBarVisibility="Auto">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="Brett" Binding="{Binding BoardNumber}" Width="60"/>
-                                    <DataGridTextColumn Header="Heim" Binding="{Binding HomePlayer}" Width="*"/>
-                                    <DataGridTextColumn Header="DWZ" Binding="{Binding HomePlayerDWZ}" Width="60"/>
-                                    <DataGridTextColumn Header="Gast" Binding="{Binding GuestPlayer}" Width="*"/>
-                                    <DataGridTextColumn Header="DWZ" Binding="{Binding GuestPlayerDWZ}" Width="60"/>
-                                    <DataGridTextColumn Header="Ergebnis" Binding="{Binding BoardPointsRaw}" Width="80"/>
+                                    <DataGridTextColumn Header="Brett" Binding="{Binding Brett}" Width="60"/>
+                                    <DataGridTextColumn Header="Heim" Binding="{Binding HeimSpieler}" Width="*"/>
+                                    <DataGridTextColumn Header="DWZ" Binding="{Binding HeimSpielerDWZ}" Width="60"/>
+                                    <DataGridTextColumn Header="Gast" Binding="{Binding GastSpieler}" Width="*"/>
+                                    <DataGridTextColumn Header="DWZ" Binding="{Binding GastSpielerDWZ}" Width="60"/>
+                                    <DataGridTextColumn Header="Ergebnis" Binding="{Binding Ergebnis}" Width="80"/>
                                 </DataGrid.Columns>
                             </DataGrid>
                         </Border>
@@ -144,18 +164,18 @@
                 </DataGrid.InputBindings>
 
                 <DataGrid.Resources>
-                    <ContextMenu x:Key="RowMenu">
-                        <MenuItem Header="Spieler exportieren als JSON-Datei"
+                    <ContextMenu x:Key="PlayerRowMenu">
+                        <MenuItem Header="Alle Spieler exportieren als JSON-Datei"
                                   Command="{Binding ExportSelectedTeamJsonCommand}"
                                   CommandParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}, Path=SelectedItem}" />
-                        <MenuItem Header="Spieler exportieren als CSV-Datei"
+                        <MenuItem Header="Alle Spieler exportieren als CSV-Datei"
                                   Command="{Binding ExportSelectedTeamCsvCommand}"
                                   CommandParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}, Path=SelectedItem}" />
                     </ContextMenu>
                 </DataGrid.Resources>
                 <DataGrid.RowStyle>
                     <Style TargetType="DataGridRow" >
-                        <Setter Property="ContextMenu" Value="{StaticResource RowMenu}" />
+                        <Setter Property="ContextMenu" Value="{StaticResource PlayerRowMenu}" />
                     </Style>
                 </DataGrid.RowStyle>
 

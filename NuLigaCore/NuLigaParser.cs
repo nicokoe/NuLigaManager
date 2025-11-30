@@ -127,11 +127,11 @@ namespace NuLigaCore
 
                 var gameDay = new GameDay
                 {
-                    Date = DateTime.Parse(date),
-                    Round = int.Parse(round),
-                    HomeTeam = homeTeam,
-                    GuestTeam = guestTeam,
-                    BoardPoints = boardPoints,
+                    Datum = DateTime.Parse(date),
+                    Runde = int.Parse(round),
+                    HeimMannschaft = homeTeam,
+                    GastMannschaft = guestTeam,
+                    BrettPunkte = boardPoints,
                     ReportUrl = string.IsNullOrEmpty(reportUrl) ? null : urlRoot + reportUrl
                 };
 
@@ -187,12 +187,12 @@ namespace NuLigaCore
 
                 var pairing = new Pairing
                 {
-                    BoardNumber = int.Parse(cells[0].InnerText.TrimStart('\n', '\t', ' ').TrimEnd('\n', '\t', ' ')),
-                    HomePlayer = cells[1].InnerText.TrimStart('\n', '\t', ' ').TrimEnd('\n', '\t', ' '),
-                    HomePlayerDWZ = int.Parse(string.IsNullOrEmpty(homePlayerDWZ) ? "1000" : homePlayerDWZ),
-                    GuestPlayer = cells[3].InnerText.TrimStart('\n', '\t', ' ').TrimEnd('\n', '\t', ' '),
-                    GuestPlayerDWZ = int.Parse(string.IsNullOrEmpty(guestPlayerDWZ) ? "1000" : guestPlayerDWZ),
-                    BoardPointsRaw = cells[5].InnerText.TrimStart('\n', '\t', ' ').TrimEnd('\n', '\t', ' ')
+                    Brett = int.Parse(cells[0].InnerText.TrimStart('\n', '\t', ' ').TrimEnd('\n', '\t', ' ')),
+                    HeimSpieler = cells[1].InnerText.TrimStart('\n', '\t', ' ').TrimEnd('\n', '\t', ' '),
+                    HeimSpielerDWZ = int.Parse(string.IsNullOrEmpty(homePlayerDWZ) ? "1000" : homePlayerDWZ),
+                    GastSpieler = cells[3].InnerText.TrimStart('\n', '\t', ' ').TrimEnd('\n', '\t', ' '),
+                    GastSpielerDWZ = int.Parse(string.IsNullOrEmpty(guestPlayerDWZ) ? "1000" : guestPlayerDWZ),
+                    Ergebnis = cells[5].InnerText.TrimStart('\n', '\t', ' ').TrimEnd('\n', '\t', ' ')
                 };
                 pairings.Add(pairing);
             }

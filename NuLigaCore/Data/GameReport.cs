@@ -7,8 +7,8 @@ namespace NuLigaCore.Data
         public Pairing? GetPairingForPlayer(string? playerName, bool forHomeTeam)
         {
             return forHomeTeam
-                ? Pairings.FirstOrDefault(p => p.HomePlayer == playerName)
-                : Pairings.FirstOrDefault(p => p.GuestPlayer == playerName);
+                ? Pairings.FirstOrDefault(p => p.HeimSpieler == playerName)
+                : Pairings.FirstOrDefault(p => p.GastSpieler == playerName);
         }
 
         public double ComputeBw(bool forHomeTeam)
@@ -17,7 +17,7 @@ namespace NuLigaCore.Data
             var bwTotal = 0.0;
             foreach (var pairing in Pairings)
             {
-                var points = (boardCount + 1) - pairing.BoardNumber;
+                var points = (boardCount + 1) - pairing.Brett;
                 bwTotal += points * FactorForBoardResult(pairing.BoardPoints, forHomeTeam);
             }
 

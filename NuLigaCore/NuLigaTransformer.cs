@@ -11,7 +11,7 @@ namespace NuLigaCore
                 return [];
             }
 
-            var currentGameDay = teams[0].GameDays?.Last(gd => gd.ReportUrl != null)?.Date;
+            var currentGameDay = teams[0].GameDays?.Last(gd => gd.ReportUrl != null)?.Datum;
             if (currentGameDay == null)
             {
                 return [];
@@ -20,8 +20,8 @@ namespace NuLigaCore
             var currentGameDayReport = new List<GameDay>();
             foreach (var team in teams)
             {
-                var gameDay = team.GameDays?.FirstOrDefault(gd => gd.Date == currentGameDay);
-                if (gameDay != null && !currentGameDayReport.Any(gd => gd.HomeTeam == gameDay.HomeTeam && gd.GuestTeam == gameDay.GuestTeam))
+                var gameDay = team.GameDays?.FirstOrDefault(gd => gd.Datum == currentGameDay);
+                if (gameDay != null && !currentGameDayReport.Any(gd => gd.HeimMannschaft == gameDay.HeimMannschaft && gd.GastMannschaft == gameDay.GastMannschaft))
                 {
                     currentGameDayReport.Add(gameDay);
                 }

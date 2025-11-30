@@ -36,7 +36,7 @@ namespace NuLigaCore.Data
                     continue;
                 }
 
-                bwTotal += gameDay.Report.ComputeBw(gameDay.HomeTeam == Name);
+                bwTotal += gameDay.Report.ComputeBw(gameDay.HeimMannschaft == Name);
             }
 
             return bwTotal;
@@ -49,13 +49,13 @@ namespace NuLigaCore.Data
                 return;
             }
 
-            var isHomeTeam = gameDay.HomeTeam == Name;
+            var isHomeTeam = gameDay.HeimMannschaft == Name;
 
             foreach (var player in TeamPlayers ?? Enumerable.Empty<Player>())
             {
                 var pairing = gameDay.Report.GetPairingForPlayer(player.Name, isHomeTeam);
                 var result = pairing?.BoardPoints.ToDouble(isHomeTeam) ?? -1;
-                player.PunkteProSpieltag?[gameDay.Round - 1] = result;
+                player.PunkteProSpieltag?[gameDay.Runde - 1] = result;
             }
         }
 

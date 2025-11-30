@@ -1,20 +1,32 @@
+using CsvHelper.Configuration;
+using System.Globalization;
+
 namespace NuLigaCore.Data
 {
     public class GameDay
     {
-        public DateTime Date { get; set; }
-        public int Round { get; set; }
-        public string? HomeTeam { get; set; }
-        public double HomeTeamDWZ => (Report != null && Report.Pairings.Count > 0) ? Math.Round(Report.Pairings.Average(x => x.HomePlayerDWZ)) : 0;
-        public string? GuestTeam { get; set; }
-        public double GuestTeamDWZ => (Report != null && Report.Pairings.Count > 0) ? Math.Round(Report.Pairings.Average(x => x.GuestPlayerDWZ)) : 0;
-        public string? BoardPoints { get; set; }
+        public DateTime Datum { get; set; }
+        public int Runde { get; set; }
+        public string? HeimMannschaft { get; set; }
+        public double HeimMannschaftDWZ => (Report != null && Report.Pairings.Count > 0) ? Math.Round(Report.Pairings.Average(x => x.HeimSpielerDWZ)) : 0;
+        public string? GastMannschaft { get; set; }
+        public double GastMannschaftDWZ => (Report != null && Report.Pairings.Count > 0) ? Math.Round(Report.Pairings.Average(x => x.GastSpielerDWZ)) : 0;
+        public string? BrettPunkte { get; set; }
         public string? ReportUrl { get; set; }
         public GameReport? Report { get; set; }
 
         public override string ToString()
         {
-            return $"Round {Round} on {Date.ToShortDateString()}: {HomeTeam} vs {GuestTeam} - BoardPoints: {BoardPoints}";
+            return $"Round {Runde} on {Datum.ToShortDateString()}: {HeimMannschaft} vs {GastMannschaft} - BoardPoints: {BrettPunkte}";
+        }
+    }
+
+    public sealed class GameDayMap : ClassMap<GameDay>
+    {
+        public GameDayMap()
+        {
+            AutoMap(CultureInfo.InvariantCulture);
+            Map(m => m.ReportUrl).Ignore();
         }
     }
 }

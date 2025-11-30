@@ -7,7 +7,6 @@ using System.ComponentModel;
 using System.IO;
 using System.Text.Json;
 using System.Windows;
-using System.Windows.Data;
 using System.Windows.Input;
 
 namespace NuLigaGui.ViewModels
@@ -22,15 +21,19 @@ namespace NuLigaGui.ViewModels
         private readonly Dictionary<string, List<Team>> _teamsCache = new();
         private readonly object _cacheLock = new();
 
-        private readonly RelayCommand _copyCommand;
+        private readonly RelayCommand _copyLeagueCommand;
         private readonly RelayCommand _copyTeamCommand;
-        private readonly RelayCommand<League?> _exportJsonCommand;
-        private readonly RelayCommand<League?> _exportCsvCommand;
+        private readonly RelayCommand<League?> _exportLeagueJsonCommand;
+        private readonly RelayCommand<League?> _exportLeagueCsvCommand;
+        private readonly RelayCommand<League?> _exportGameReportCsvCommand;
+        private readonly RelayCommand<GameDay?> _exportSelectedGameDayCsvCommand;
         private readonly RelayCommand _collapseSelectionsCommand;
-        public ICommand CopySelectedLeagueCommand => _copyCommand;
+        public ICommand CopySelectedLeagueCommand => _copyLeagueCommand;
         public ICommand CopySelectedTeamCommand => _copyTeamCommand;
-        public ICommand ExportSelectedLeagueJsonCommand => _exportJsonCommand;
-        public ICommand ExportSelectedLeagueCsvCommand => _exportCsvCommand;
+        public ICommand ExportSelectedLeagueJsonCommand => _exportLeagueJsonCommand;
+        public ICommand ExportSelectedLeagueCsvCommand => _exportLeagueCsvCommand;
+        public ICommand ExportGameReportCsvCommand => _exportGameReportCsvCommand;
+        public ICommand ExportSelectedGameDayCsvCommand => _exportSelectedGameDayCsvCommand;
         public ICommand CollapseSelectionsCommand => _collapseSelectionsCommand;
 
         private League? _selectedLeague;
@@ -45,7 +48,7 @@ namespace NuLigaGui.ViewModels
                     OnPropertyChanged(nameof(SelectedLeague));
 
                     _ = LoadTeamsAsync(_selectedLeague);
-                    _copyCommand.RaiseCanExecuteChanged();
+                    _copyLeagueCommand.RaiseCanExecuteChanged();
                 }
             }
         }
@@ -61,9 +64,7 @@ namespace NuLigaGui.ViewModels
                     _selectedTeamView = value;
                     OnPropertyChanged(nameof(SelectedTeamView));
 
-                    _copyCommand.RaiseCanExecuteChanged();
-
-                    _collapseSelectionsCommand.RaiseCanExecuteChanged();
+                    _copyLeagueCommand.RaiseCanExecuteChanged();
                 }
             }
         }
@@ -80,6 +81,7 @@ namespace NuLigaGui.ViewModels
                     OnPropertyChanged(nameof(SelectedGameDay));
 
                     _collapseSelectionsCommand.RaiseCanExecuteChanged();
+                    _exportSelectedGameDayCsvCommand.RaiseCanExecuteChanged();
                 }
             }
         }
@@ -102,10 +104,12 @@ namespace NuLigaGui.ViewModels
         {
             Leagues = new ObservableCollection<League>(leagues.Where(l => l is not null).ToList());
 
-            _copyCommand = new RelayCommand(CopySelectedLeagueAsync, () => SelectedLeague != null);
+            _copyLeagueCommand = new RelayCommand(CopySelectedLeagueAsync, () => SelectedLeague != null);
             _copyTeamCommand = new RelayCommand(CopySelectedTeamPlayersAsync, () => SelectedTeamView != null);
-            _exportJsonCommand = new RelayCommand<League?>(ExportSelectedLeagueJsonAsync, l => l != null);
-            _exportCsvCommand = new RelayCommand<League?>(ExportSelectedLeagueCsvAsync, l => l != null);
+            _exportLeagueJsonCommand = new RelayCommand<League?>(ExportSelectedLeagueJsonAsync, l => l != null);
+            _exportLeagueCsvCommand = new RelayCommand<League?>(ExportSelectedLeagueCsvAsync, l => l != null);
+            _exportGameReportCsvCommand = new RelayCommand<League?>(ExportGameReportCsvAsync, l => l != null);
+            _exportSelectedGameDayCsvCommand = new RelayCommand<GameDay?>(ExportSelectedGameDayCsvAsync, l => l != null);
 
             _collapseSelectionsCommand = new RelayCommand(CollapseSelectionsAsync, () => SelectedGameDay != null || SelectedTeamView != null);
 
@@ -170,6 +174,7 @@ namespace NuLigaGui.ViewModels
 
                     SelectedGameDay = null;
                     _collapseSelectionsCommand.RaiseCanExecuteChanged();
+                    _exportSelectedGameDayCsvCommand.RaiseCanExecuteChanged();
                 });
 
                 return cached;
@@ -208,6 +213,7 @@ namespace NuLigaGui.ViewModels
 
                     SelectedGameDay = null;
                     _collapseSelectionsCommand.RaiseCanExecuteChanged();
+                    _exportSelectedGameDayCsvCommand.RaiseCanExecuteChanged();
                 });
 
                 return teams;
@@ -307,6 +313,48 @@ namespace NuLigaGui.ViewModels
                 {
                     csv.Context.RegisterClassMap<TeamMap>();
                     await csv.WriteRecordsAsync(teams).ConfigureAwait(false);
+                }
+            }
+        }
+
+        public async Task ExportGameReportCsvAsync(League? league)
+        {
+            if (league == null) return;
+
+            var teams = await LoadTeamsAsync(league).ConfigureAwait(false);
+
+            if (GameDays.Count <= 0) return;
+
+            var defaultFileName = string.IsNullOrWhiteSpace(league.Name) ? "teams" : $"{league.Name.ToValidFileName()}_GameReport.csv";
+            var path = DialogExtensions.GetPathWithSaveFileDialog(defaultFileName, "CSV files (*.csv)|*.csv|All files (*.*)|*.*", "csv");
+
+            if (string.IsNullOrWhiteSpace(path)) return;
+
+            using (var writer = new StreamWriter(path))
+            {
+                using (var csv = new CsvWriter(writer, System.Globalization.CultureInfo.InvariantCulture))
+                {
+                    csv.Context.RegisterClassMap<GameDayMap>();
+                    await csv.WriteRecordsAsync(GameDays).ConfigureAwait(false);
+                }
+            }
+        }
+
+        public async Task ExportSelectedGameDayCsvAsync(GameDay? gameDay)
+        {
+            if (gameDay == null || gameDay.Report == null) return;
+
+            var defaultFileName = $"Pairings_{gameDay.HeimMannschaft?.ToValidFileName()}_{gameDay.GastMannschaft?.ToValidFileName()}.csv";
+            var path = DialogExtensions.GetPathWithSaveFileDialog(defaultFileName, "CSV files (*.csv)|*.csv|All files (*.*)|*.*", "csv");
+
+            if (string.IsNullOrWhiteSpace(path)) return;
+
+            using (var writer = new StreamWriter(path))
+            {
+                using (var csv = new CsvWriter(writer, System.Globalization.CultureInfo.InvariantCulture))
+                {
+                    csv.Context.RegisterClassMap<PairingMap>();
+                    await csv.WriteRecordsAsync(gameDay.Report.Pairings).ConfigureAwait(false);
                 }
             }
         }
