@@ -114,6 +114,8 @@ namespace NuLigaGui.ViewModels
             OnPropertyChanged(nameof(BoardPointsSum));
             OnPropertyChanged(nameof(AverageDwz));
             OnPropertyChanged(nameof(BerlinTieBreak));
+
+            PopulatePlayersRows();
         }
 
         public async Task ExportSelectedTeamJsonAsync(TeamViewModel? team)
