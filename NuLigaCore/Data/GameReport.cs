@@ -4,6 +4,9 @@ namespace NuLigaCore.Data
     {
         public List<Pairing> Pairings { get; set; } = [];
 
+        public double AverageHomeDWZ => Pairings.Count > 0 ? Math.Round(Pairings.Where(x => x.BoardPoints.IsRegularResult()).Average(x => x.HeimSpielerDWZ)) : 0;
+        public double AverageGuestDWZ => Pairings.Count > 0 ? Math.Round(Pairings.Where(x => x.BoardPoints.IsRegularResult()).Average(x => x.GastSpielerDWZ)) : 0;
+
         public Pairing? GetPairingForPlayer(string? playerName, bool forHomeTeam)
         {
             return forHomeTeam

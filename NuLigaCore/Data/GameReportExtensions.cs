@@ -16,6 +16,11 @@ namespace NuLigaCore.Data
             };
         }
 
+        public static bool IsRegularResult(this BoardPoints bp)
+        {
+            return bp != BoardPoints.NotPlayed && bp != BoardPoints.GuestWinByDefault && bp != BoardPoints.HomeWinByDefault;
+        }
+
         public static double ToDouble(this BoardPoints boardPoints, bool isHomeTeam)
         {
             if (!isHomeTeam)
