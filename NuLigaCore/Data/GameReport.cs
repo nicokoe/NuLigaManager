@@ -3,9 +3,10 @@ namespace NuLigaCore.Data
     public class GameReport
     {
         public List<Pairing> Pairings { get; set; } = [];
+        public IEnumerable<Pairing> RegularPairings => Pairings.Where(x => x.BoardPoints.IsRegularResult());
 
-        public double AverageHomeDWZ => Pairings.Count > 0 ? Math.Round(Pairings.Where(x => x.BoardPoints.IsRegularResult()).Average(x => x.HeimSpielerDWZ)) : 0;
-        public double AverageGuestDWZ => Pairings.Count > 0 ? Math.Round(Pairings.Where(x => x.BoardPoints.IsRegularResult()).Average(x => x.GastSpielerDWZ)) : 0;
+        public double AverageHomeDWZ => RegularPairings.Any() ? Math.Round(RegularPairings.Average(x => x.HeimSpielerDWZ)) : 0;
+        public double AverageGuestDWZ => RegularPairings.Any() ? Math.Round(RegularPairings.Average(x => x.GastSpielerDWZ)) : 0;
 
         public Pairing? GetPairingForPlayer(string? playerName, bool forHomeTeam)
         {
