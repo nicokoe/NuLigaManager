@@ -81,7 +81,7 @@ namespace NuLigaCore
                 if (newTeam.TeamUrl != null)
                 {
                     var teamDoc = web.Load(newTeam.TeamUrl);
-                    newTeam.TeamPlayers = ParsePlayers(teamDoc, numberOfTeams - 1);
+                    newTeam.TeamPlayers = ParsePlayers(teamDoc, newTeam.GameDays?.Count ?? numberOfTeams - 1);
                     newTeam.GameDays = ParseGameDays(teamDoc, newTeam.GameDayReportLoaded);
                 }
 
